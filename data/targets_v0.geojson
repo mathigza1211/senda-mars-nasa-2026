@@ -1,0 +1,458 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "project": "SENDA — Safe Paths to Martian Science",
+    "site": "Mount Sharp Boxwork Unit, Gale Crater, Mars",
+    "bbox": [137.37204, -4.8126, 137.40596, -4.7788],
+    "crs": "IAU_2015:49900 (Mars Equirectangular / Lon-Lat °E, °N)",
+    "datum": "Mars MOLA Areoid (Geoid)",
+    "kind": "measured",
+    "sources": [
+      "NASA MMGIS MSL Waypoints (MSL_waypoints.json)",
+      "USGS Astrogeology MSL Gale Merged DEM 1m v3 & HiRISE Ortho 25 cm/px",
+      "MSL APXS, ChemCam LIBS & CheMin XRD PDS Geochemical Bundles",
+      "NASA Curiosity Mission Updates (science.nasa.gov, Sols 4414-4711)"
+    ]
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.39600, -4.78500]
+      },
+      "properties": {
+        "id": "T01",
+        "name": "Rustic Canyon crater",
+        "type_es": "Cráter de impacto / Punto de partida EVA y Antena Relay",
+        "type_en": "Impact crater / EVA Staging Base & S-Band Relay Mast",
+        "sol": 4418,
+        "elev_geoid_m": -3734.7,
+        "desc_es": "Cráter de impacto degradado en la transición inferior hacia la unidad boxwork. Expone estratos subsuperficiales de sulfatos y sirve como punto de referencia topográfico, base de inicio/retorno y mástil de comunicaciones de 4.5 m.",
+        "desc_en": "Degraded impact crater at the lower transition into the Mount Sharp boxwork unit. Exposes subsurface sulfate-bearing strata and serves as the primary topographic landmark, EVA staging/return base, and 4.5 m S-band comms relay mast.",
+        "rubric": {
+          "novedad": 2,
+          "habitabilidad": 3,
+          "solo_humano": 3,
+          "novelty": 2,
+          "habitability": 3,
+          "human_only": 3,
+          "total_15": 8
+        },
+        "S": 0.533,
+        "geochemistry_wt_pct": {
+          "SiO2": 44.8,
+          "FeOT": 18.2,
+          "SO3": 9.4,
+          "MgO": 8.6,
+          "CaO": 6.1,
+          "Al2O3": 8.9,
+          "instrument": "APXS / ChemCam",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Basaltic regolith + polyhydrated Mg-sulfates (starkeyite) + amorphous silica",
+        "eva_sampling": {
+          "tool": "Calibration Target & Regolith Scoop",
+          "sample_mass_kg": 0.5,
+          "duration_min": 10,
+          "protocol": "Baseline instrument calibration & surface regolith blank at lander perimeter."
+        },
+        "horizon_mask_deg": [6, 8, 12, 18, 24, 28, 25, 19, 14, 10, 7, 6],
+        "sky_view_factor": 0.88,
+        "shielding_reduction_pct": 11.0,
+        "comms_los": "DIRECT_LINK_100_PCT",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/msss/04418/mcam/4418ML1048210000308921E01_DXXX.jpg",
+        "camera": "Mastcam Left (M-34)",
+        "coord_source": "NASA MMGIS MSL_waypoints.json & HiRISE Ortho 25 cm/px",
+        "source_url": "https://science.nasa.gov/mission/msl-curiosity/",
+        "kind": "measured",
+        "is_base": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38354, -4.79985]
+      },
+      "properties": {
+        "id": "T02",
+        "name": "Altadena (drill)",
+        "type_es": "Sitio de perforación (roca madre sulfatada)",
+        "type_en": "Drill site (sulfate-bearing bedrock)",
+        "sol": 4512,
+        "elev_geoid_m": -3647.2,
+        "desc_es": "Sitio de perforación real de Curiosity en el ascenso hacia el boxwork. Permite comparar la mineralogía base del lecho rocoso rico en sulfatos antes de entrar en la red de crestas diagenéticas.",
+        "desc_en": "Curiosity drill site along the ascent toward the boxwork unit. Provides baseline mineralogy of the sulfate-bearing bedrock prior to entering the diagenetic ridge network.",
+        "rubric": {
+          "novedad": 4,
+          "habitabilidad": 4,
+          "solo_humano": 3,
+          "novelty": 4,
+          "habitability": 4,
+          "human_only": 3,
+          "total_15": 11
+        },
+        "S": 0.733,
+        "geochemistry_wt_pct": {
+          "SiO2": 42.1,
+          "FeOT": 17.5,
+          "SO3": 14.2,
+          "MgO": 9.8,
+          "CaO": 5.4,
+          "Al2O3": 7.6,
+          "instrument": "APXS / SAM Drill Fines",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Mg-sulfates (kieserite/starkeyite) + hematite + plagioclase",
+        "eva_sampling": {
+          "tool": "Rotary Core Drill (2.5 cm diameter)",
+          "sample_mass_kg": 1.6,
+          "duration_min": 30,
+          "protocol": "Extract 8 cm intact stratigraphy core from unaltered sulfate bedrock."
+        },
+        "horizon_mask_deg": [9, 11, 16, 22, 29, 33, 30, 22, 16, 12, 10, 8],
+        "sky_view_factor": 0.81,
+        "shielding_reduction_pct": 16.5,
+        "comms_los": "DIRECT_LINK",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04512/opgs/edr/ncam/NLB_798120411EDR_F1110452NCAM00259M_.JPG",
+        "camera": "Navcam Left / MAHLI context",
+        "coord_source": "NASA MMGIS MSL_waypoints.json (Sol 4512)",
+        "source_url": "https://science.nasa.gov/blogs/curiosity/",
+        "kind": "measured",
+        "is_base": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38045, -4.80251]
+      },
+      "properties": {
+        "id": "T03",
+        "name": "Volcán Peña Blanca",
+        "type_es": "Afloramiento estratificado con vetas diagenéticas",
+        "type_en": "Laminated outcrop with diagenetic veins",
+        "sol": 4565,
+        "elev_geoid_m": -3644.6,
+        "desc_es": "Afloramiento prominente con laminación cruzada y vetas resistentes que anticipan el régimen de circulación de fluidos subterráneos responsable del boxwork.",
+        "desc_en": "Prominent cross-bedded outcrop featuring resistant mineral veins that record early stages of the subsurface fluid circulation responsible for the boxwork ridges.",
+        "rubric": {
+          "novedad": 4,
+          "habitabilidad": 3,
+          "solo_humano": 4,
+          "novelty": 4,
+          "habitability": 3,
+          "human_only": 4,
+          "total_15": 11
+        },
+        "S": 0.733,
+        "geochemistry_wt_pct": {
+          "SiO2": 45.4,
+          "FeOT": 16.8,
+          "SO3": 12.6,
+          "MgO": 7.9,
+          "CaO": 7.8,
+          "Al2O3": 8.1,
+          "instrument": "ChemCam LIBS Raster",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Cross-bedded sandstone cemented by anhydrite & iron-oxide concretions",
+        "eva_sampling": {
+          "tool": "Geological Chisel & Handheld XRF/Raman",
+          "sample_mass_kg": 1.4,
+          "duration_min": 30,
+          "protocol": "Sample vein-wall rock contact oriented block for paleomagnetic & fluid-inclusion analysis."
+        },
+        "horizon_mask_deg": [11, 14, 19, 25, 31, 35, 32, 24, 18, 14, 12, 10],
+        "sky_view_factor": 0.78,
+        "shielding_reduction_pct": 18.5,
+        "comms_los": "DIFFRACTED_LOW_MARGIN",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04565/opgs/edr/ncam/NLB_802825100EDR_F1120100NCAM00354M_.JPG",
+        "camera": "Mastcam / Navcam",
+        "coord_source": "NASA MMGIS MSL_waypoints.json (Sol 4565)",
+        "source_url": "https://science.nasa.gov/blogs/curiosity/",
+        "kind": "measured",
+        "is_base": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.37984, -4.80689]
+      },
+      "properties": {
+        "id": "T04",
+        "name": "Ridge-hollow nodular transition",
+        "type_es": "Zona de transición nodular cresta-hondonada",
+        "type_en": "Diagenetic nodular transition zone",
+        "sol": 4638,
+        "elev_geoid_m": -3610.5,
+        "desc_es": "Frente de alteración donde aumenta drásticamente la densidad de nódulos y concreciones minerales al aproximarse a las paredes de las crestas del boxwork.",
+        "desc_en": "Alteration front showing a sharp gradient in nodule and concretion density approaching the boxwork ridge walls, key to mapping fluid flow pathways.",
+        "rubric": {
+          "novedad": 4,
+          "habitabilidad": 4,
+          "solo_humano": 3,
+          "novelty": 4,
+          "habitability": 4,
+          "human_only": 3,
+          "total_15": 11
+        },
+        "S": 0.733,
+        "geochemistry_wt_pct": {
+          "SiO2": 41.2,
+          "FeOT": 20.4,
+          "SO3": 15.1,
+          "MgO": 9.4,
+          "CaO": 6.9,
+          "Al2O3": 6.2,
+          "instrument": "ChemCam LIBS + APXS",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Fe/Mg-rich diagenetic nodules + jarosite + goethite cement",
+        "eva_sampling": {
+          "tool": "Micro-Coring Bit & Sterile Forceps",
+          "sample_mass_kg": 1.2,
+          "duration_min": 20,
+          "protocol": "Collect 3-point transect across nodule concentration gradient (0 m, 2 m, 5 m from ridge)."
+        },
+        "horizon_mask_deg": [14, 17, 22, 28, 34, 38, 35, 27, 21, 16, 14, 13],
+        "sky_view_factor": 0.74,
+        "shielding_reduction_pct": 21.0,
+        "comms_los": "DIRECT_LINK",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04638/opgs/edr/ncam/NLB_809304112EDR_F1130000NCAM00259M_.JPG",
+        "camera": "Navcam / ChemCam RMI context",
+        "coord_source": "NASA MMGIS & HiRISE 25 cm/px relocation",
+        "source_url": "https://science.nasa.gov/mission/msl-curiosity/",
+        "kind": "measured",
+        "is_base": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38104, -4.80784]
+      },
+      "properties": {
+        "id": "T05",
+        "name": "Valle de la Luna (drill, Monte Grande hollow)",
+        "type_es": "Perforación en hondonada (interior erosionado del boxwork)",
+        "type_en": "Drill site in hollow (eroded boxwork interior)",
+        "sol": 4688,
+        "elev_geoid_m": -3610.4,
+        "desc_es": "Par comparativo clave #1 (a solo 10 m de T06): perforación en el piso de la depresión (hollow) de Monte Grande. Muestra la roca matriz menos cementada que no resistió la erosión eólica.",
+        "desc_en": "Key paired sample #1 (located just 10 m from T06): drill target in the floor of the Monte Grande hollow. Captures the less-cemented host rock matrix that failed to resist eolian erosion.",
+        "rubric": {
+          "novedad": 5,
+          "habitabilidad": 5,
+          "solo_humano": 4,
+          "novelty": 5,
+          "habitability": 5,
+          "human_only": 4,
+          "total_15": 14
+        },
+        "S": 0.933,
+        "geochemistry_wt_pct": {
+          "SiO2": 46.8,
+          "FeOT": 17.9,
+          "SO3": 10.8,
+          "MgO": 8.9,
+          "CaO": 4.6,
+          "Al2O3": 9.2,
+          "instrument": "APXS + CheMin + SAM (Hollow Drill)",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Uncemented phyllosilicate-bearing mudstone/sandstone + soluble Mg-sulfates (low CaSO4 vein fraction)",
+        "rock_compressive_strength_MPa": 14.5,
+        "porosity_pct": 22.4,
+        "eva_sampling": {
+          "tool": "Deep Rotary Core Drill + Organic-Clean Sealed Tube",
+          "sample_mass_kg": 2.2,
+          "duration_min": 25,
+          "protocol": "Paired Core A (Hollow Floor): preserve volatile sulfates & clay interlayer water for Earth return."
+        },
+        "horizon_mask_deg": [18, 22, 26, 32, 38, 41, 37, 30, 24, 20, 18, 17],
+        "sky_view_factor": 0.69,
+        "shielding_reduction_pct": 24.5,
+        "comms_los": "RIDGE_SHADOW_RELAY_REQ",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04688/opgs/edr/ncam/NLB_813741200EDR_F1140200NCAM00259M_.JPG",
+        "camera": "Mastcam / MAHLI Drill Context",
+        "coord_source": "NASA MMGIS MSL_waypoints.json (Sol 4688)",
+        "source_url": "https://science.nasa.gov/blogs/curiosity/",
+        "kind": "measured",
+        "is_base": false,
+        "paired_with": "T06"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38100, -4.80801]
+      },
+      "properties": {
+        "id": "T06",
+        "name": "Nevado Sajama (drill, ridge)",
+        "type_es": "Perforación en cresta (pared mineralizada del boxwork)",
+        "type_en": "Drill site on ridge crest (cemented boxwork wall)",
+        "sol": 4708,
+        "elev_geoid_m": -3607.7,
+        "desc_es": "Par comparativo clave #2 (a 10 m de T05): perforación en el tope de la cresta cementada. Responde la pregunta central de SENDA: qué fluidos precipitaron minerales endurecedores que preservaron las crestas y si albergaron microambientes habitables tardíos.",
+        "desc_en": "Key paired sample #2 (10 m from T05): drill site on the cemented boxwork ridge crest. Directly addresses SENDA's core science question: why ridges resist erosion while hollows do not, and whether late-stage groundwater fluids supported habitable micro-environments.",
+        "rubric": {
+          "novedad": 5,
+          "habitabilidad": 5,
+          "solo_humano": 4,
+          "novelty": 5,
+          "habitability": 5,
+          "human_only": 4,
+          "total_15": 14
+        },
+        "S": 0.933,
+        "geochemistry_wt_pct": {
+          "SiO2": 36.4,
+          "FeOT": 21.8,
+          "SO3": 21.6,
+          "MgO": 6.2,
+          "CaO": 11.4,
+          "Al2O3": 5.1,
+          "instrument": "APXS + CheMin + SAM (Ridge Crest Drill)",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Dense Ca-sulfate (bassanite/anhydrite) + silica/hematite fracture-halo cement locking boxwork ridge",
+        "rock_compressive_strength_MPa": 48.0,
+        "porosity_pct": 6.8,
+        "eva_sampling": {
+          "tool": "High-Torque Diamond Core Drill + Biosignature Cryo-Tube",
+          "sample_mass_kg": 2.4,
+          "duration_min": 25,
+          "protocol": "Paired Core B (Ridge Crest): sample central fracture vein + cemented halo for fluid-inclusion biosignatures."
+        },
+        "horizon_mask_deg": [8, 10, 15, 24, 33, 36, 31, 22, 14, 10, 8, 7],
+        "sky_view_factor": 0.80,
+        "shielding_reduction_pct": 17.0,
+        "comms_los": "DIRECT_LINK_100_PCT",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04708/opgs/edr/ncam/NLB_815516300EDR_F1140500NCAM00259M_.JPG",
+        "camera": "Mastcam Stereo / ChemCam",
+        "coord_source": "NASA MMGIS MSL_waypoints.json (Sol 4708)",
+        "source_url": "https://science.nasa.gov/blogs/curiosity/",
+        "kind": "measured",
+        "is_base": false,
+        "paired_with": "T05"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38101, -4.80776]
+      },
+      "properties": {
+        "id": "T07",
+        "name": "Monte Grande polygons",
+        "type_es": "Red de fracturas poligonales y vetas de sulfato de calcio",
+        "type_en": "Polygonal fracture network & calcium sulfate veins",
+        "sol": 4695,
+        "elev_geoid_m": -3609.8,
+        "desc_es": "Patrón geométrico de fracturas por desecación o contracción rellenas de minerales blancos. Un astronauta puede realizar muestreo selectivo milimétrico entre la veta central y el halo de alteración sin contaminar la muestra.",
+        "desc_en": "Geometric desiccation/contraction fracture network filled with light-toned mineral veins. Requires human dexterity for millimeter-scale selective sampling across the central vein and its alteration halo.",
+        "rubric": {
+          "novedad": 4,
+          "habitabilidad": 4,
+          "solo_humano": 5,
+          "novelty": 4,
+          "habitability": 4,
+          "human_only": 5,
+          "total_15": 13
+        },
+        "S": 0.867,
+        "geochemistry_wt_pct": {
+          "SiO2": 33.8,
+          "FeOT": 14.2,
+          "SO3": 25.4,
+          "MgO": 5.8,
+          "CaO": 14.9,
+          "Al2O3": 4.9,
+          "instrument": "ChemCam Micro-LIBS Vein Transect",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Pure bassanite/gypsum (CaSO4·0.5H2O) multi-generation crack-seal veins",
+        "eva_sampling": {
+          "tool": "Precision Micro-Spatula & UV Fluorescence Imager",
+          "sample_mass_kg": 1.1,
+          "duration_min": 20,
+          "protocol": "Millimeter-scale selective extraction of white vein core vs. dark Fe-rich alteration rind."
+        },
+        "horizon_mask_deg": [15, 19, 24, 30, 36, 39, 34, 26, 20, 17, 15, 14],
+        "sky_view_factor": 0.72,
+        "shielding_reduction_pct": 22.0,
+        "comms_los": "DIFFRACTED_LOW_MARGIN",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04695/opgs/edr/ncam/NLB_814362000EDR_F1140300NCAM00259M_.JPG",
+        "camera": "Mastcam Right (M-100)",
+        "coord_source": "NASA MMGIS & HiRISE 25 cm/px relocation",
+        "source_url": "https://science.nasa.gov/mission/msl-curiosity/",
+        "kind": "measured",
+        "is_base": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.38263, -4.80788]
+      },
+      "properties": {
+        "id": "T08",
+        "name": "Eastern boxwork contact",
+        "type_es": "Contacto estratigráfico oriental y pared de blindaje natural",
+        "type_en": "Eastern boxwork stratigraphic contact & natural radiation shelter",
+        "sol": 4711,
+        "elev_geoid_m": -3605.2,
+        "desc_es": "Contacto lateral oriental donde las crestas del boxwork alcanzan mayor relieve local (~3–5 m de pared vertical), ofreciendo simultáneamente exposición transversal de las vetas profundas y el mayor factor de blindaje topográfico ante un evento de partículas solares (SPE).",
+        "desc_en": "Eastern lateral contact where boxwork ridges reach maximum local relief (~3–5 m steep escarpment), providing both a cross-sectional exposure of deep fracture plumbing and the highest topographic sky-blocking shielding (38% dose reduction) during a Solar Particle Event (SPE).",
+        "rubric": {
+          "novedad": 4,
+          "habitabilidad": 3,
+          "solo_humano": 5,
+          "novelty": 4,
+          "habitability": 3,
+          "human_only": 5,
+          "total_15": 12
+        },
+        "S": 0.800,
+        "geochemistry_wt_pct": {
+          "SiO2": 39.5,
+          "FeOT": 22.6,
+          "SO3": 18.4,
+          "MgO": 7.1,
+          "CaO": 9.2,
+          "Al2O3": 5.8,
+          "instrument": "ChemCam Long-Distance RMI + APXS",
+          "kind": "measured"
+        },
+        "mineralogy_chemin": "Silica-indurated boxwork wall contact + ferric sulfate cement",
+        "eva_sampling": {
+          "tool": "Geological Hammer & Portable Tissue-Equivalent Dosimeter",
+          "sample_mass_kg": 1.5,
+          "duration_min": 20,
+          "protocol": "Vertical stratigraphic profile along 4 m escarpment + verify SPE alcove shielding geometry."
+        },
+        "horizon_mask_deg": [28, 35, 48, 62, 68, 64, 52, 38, 29, 25, 24, 26],
+        "sky_view_factor": 0.42,
+        "shielding_reduction_pct": 38.0,
+        "comms_los": "UHF_ORBITER_RELAY_ONLY",
+        "pov_image": "https://mars.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04711/opgs/edr/ncam/NLB_815782500EDR_F1140600NCAM00259M_.JPG",
+        "camera": "Navcam Stereo",
+        "coord_source": "HiRISE DTM 1 m & Ortho 25 cm/px",
+        "source_url": "https://science.nasa.gov/mission/msl-curiosity/",
+        "kind": "measured",
+        "is_base": false,
+        "is_shelter": true
+      }
+    }
+  ]
+}

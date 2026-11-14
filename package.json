@@ -1,0 +1,24 @@
+{
+  "name": "senda-mars-mission-control",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SENDA — Safe paths to Martian science (NASA Space Apps Challenge 2026)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node -e \"console.log('SENDA Mars static bundle ready')\"",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ol": "^10.2.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

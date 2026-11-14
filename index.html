@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SENDA — Martian EVA Mission Control | NASA Space Apps 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background-color: #0B0F14;
+        color: #E6EDF3;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+      }
+      .mono-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        color: #8B98A5;
+        letter-spacing: 0.05em;
+      }
+      .prov-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 5px;
+        font-size: 9px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        border-radius: 3px;
+        letter-spacing: 0.04em;
+      }
+      .chip-measured {
+        background: rgba(124, 217, 146, 0.14);
+        border: 1px solid rgba(124, 217, 146, 0.45);
+        color: #7CD992;
+      }
+      .chip-modeled {
+        background: rgba(79, 195, 247, 0.14);
+        border: 1px solid rgba(79, 195, 247, 0.45);
+        color: #4FC3F7;
+      }
+      .chip-assumed {
+        background: rgba(139, 152, 165, 0.16);
+        border: 1px solid rgba(139, 152, 165, 0.45);
+        color: #8B98A5;
+      }
+      .mode-btn {
+        border: none;
+        cursor: pointer;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        background: transparent;
+        color: #8B98A5;
+      }
+      .mode-btn.active {
+        background: #E4572E;
+        color: #0B0F14;
+      }
+      .layer-card {
+        background: rgba(11, 15, 20, 0.45);
+        border: 1px solid rgba(31, 42, 55, 0.6);
+        border-radius: 6px;
+        padding: 8px 10px;
+      }
+      .layer-card.on {
+        background: #0B0F14;
+        border-color: #1F2A37;
+      }
+      .info-btn {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid #1F2A37;
+        background: #121821;
+        color: #8B98A5;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .info-btn.active {
+        border-color: #E4572E;
+        color: #E4572E;
+        background: rgba(228, 87, 46, 0.18);
+      }
+      .info-drawer {
+        margin-top: 7px;
+        padding: 6px 8px;
+        background: #121821;
+        border: 1px solid #1F2A37;
+        border-radius: 4px;
+        font-size: 10.5px;
+        color: #8B98A5;
+        line-height: 1.42;
+      }
+      .sub-box {
+        background: #0B0F14;
+        border: 1px solid #1F2A37;
+        border-radius: 6px;
+        padding: 8px 10px;
+      }
+      .pill-btn {
+        border: 1px solid #1F2A37;
+        background: #0B0F14;
+        color: #8B98A5;
+        border-radius: 4px;
+        padding: 3px 6px;
+        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .pill-btn.active {
+        border-color: #E4572E;
+        background: rgba(228, 87, 46, 0.22);
+        color: #E6EDF3;
+      }
+      .route-card {
+        border: 1.5px solid #1F2A37;
+        border-radius: 6px;
+        padding: 9px 11px;
+        cursor: pointer;
+      }
+      .select-route-btn {
+        border: 1px solid #1F2A37;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .cta-field-btn {
+        margin-top: 10px;
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 6px;
+        border: 1px solid #E4572E;
+        background: rgba(228, 87, 46, 0.18);
+        color: #E6EDF3;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .small-btn {
+        border: 1px solid #1F2A37;
+        border-radius: 4px;
+        padding: 6px 8px;
+        background: #121821;
+        color: #8B98A5;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .small-btn.active-spd {
+        border-color: #4FC3F7;
+        color: #4FC3F7;
+        background: rgba(79, 195, 247, 0.18);
+      }
+      .scen-btn {
+        text-align: left;
+        padding: 6px 8px;
+        border-radius: 5px;
+        border: 1.5px solid #1F2A37;
+        background: #121821;
+        cursor: pointer;
+      }
+      .scen-btn.active {
+        border-color: #FF5A5F;
+        background: rgba(255, 90, 95, 0.18);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TopBar -->
+    <header
+      style="
+        height: 52px;
+        background: #121821;
+        border-bottom: 1px solid #1F2A37;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        flex-shrink: 0;
+      "
+    >
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div
+            style="
+              width: 28px;
+              height: 28px;
+              border-radius: 5px;
+              background: #E4572E;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'JetBrains Mono', monospace;
+              font-weight: 700;
+              color: #0B0F14;
+            "
+          >
+            S
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="font-size: 15px; letter-spacing: 0.08em;">SENDA</strong>
+              <span
+                style="
+                  font-size: 11px;
+                  color: #E4572E;
+                  font-family: 'JetBrains Mono', monospace;
+                  font-weight: 600;
+                "
+                >EVA MISSION CONTROL</span
+              >
+            </div>
+            <div style="font-size: 11px; color: #8B98A5;">Safe paths to Martian science</div>
+          </div>
+        </div>
+        <div style="width: 1px; height: 24px; background: #1F2A37;"></div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="font-size: 12px;">Mount Sharp Boxwork Unit, Gale Crater</strong>
+            <span class="prov-chip chip-measured">MEASURED</span>
+          </div>
+          <div
+            style="
+              font-size: 11px;
+              color: #8B98A5;
+              font-family: 'JetBrains Mono', monospace;
+            "
+          >
+            Center: −4.7957°N, 137.3890°E · Elev −3735 m to −3605 m (MOLA Geoid)
+          </div>
+        </div>
+      </div>
+
+      <!-- Martian Clock & Interactive 24h Sol Sun-Shadow Scrubber -->
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          background: #0B0F14;
+          border: 1px solid #1F2A37;
+          border-radius: 6px;
+          padding: 4px 10px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+        "
+      >
+        <span><small style="color: #8B98A5;">SOL</small> <strong style="color: #E8B04B;">5074</strong></span>
+        <span style="color: #1F2A37;">|</span>
+        <span>
+          <small style="color: #8B98A5;">☀️ LTST</small>
+          <strong id="ltst-clock" style="color: #4FC3F7; margin-left: 3px;">09:30</strong>
+        </span>
+        <input
+          id="sol-hour-slider"
+          type="range"
+          min="5"
+          max="20"
+          step="0.25"
+          value="9.5"
+          oninput="window.sendaSetSolHour(this.value)"
+          title="Scrub Martian Local True Solar Time (05:00 Dawn → 12:00 Noon → 17:52 Blue Sunset → 20:00 Night)"
+          style="width: 78px; accent-color: #E8B04B; cursor: pointer;"
+        />
+        <span id="sol-phase-badge" class="prov-chip chip-modeled">MORNING EVA</span>
+      </div>
+
+      <!-- Mode Selector & Categorized NASA Engineering Tools -->
+      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; position: relative;">
+        <button
+          id="btn-jury-tour"
+          class="pill-btn"
+          style="border-color: #E4572E; background: rgba(228, 87, 46, 0.22); color: #E6EDF3; padding: 5px 9px;"
+          onclick="window.sendaToggleJuryTour()"
+          title="Launch 6-Step Guided NASA Space Apps Jury Presentation Tour"
+        >
+          🎬 DEMO
+        </button>
+        <button
+          id="btn-capcom-audio"
+          class="pill-btn active"
+          style="border-color: #7CD992; color: #7CD992; padding: 5px 8px;"
+          onclick="window.sendaToggleAudio()"
+          title="Toggle NASA Quindar Telemetry Tones & CAPCOM Voice Synthesis"
+        >
+          🔊
+        </button>
+        <button
+          class="pill-btn"
+          style="border-color: #E8B04B; color: #E8B04B; padding: 5px 9px;"
+          onclick="window.sendaOpenPairedModal()"
+          title="Compare Paired Boxwork Drill Sites T05 (Hollow) vs T06 (Ridge)"
+        >
+          ⚖ T05 vs T06
+        </button>
+        <button
+          class="pill-btn"
+          style="border-color: #A371F7; color: #A371F7; padding: 5px 9px;"
+          onclick="window.sendaOpenDrillModal()"
+          title="Inspect 10cm Drill Core Stratigraphy, Laser Zapper & ChemCam LIBS"
+        >
+          🔬 DRILL LAB
+        </button>
+
+        <!-- Categorized NASA Labs & Engineering Dropdown Menu -->
+        <div style="position: relative;">
+          <button
+            id="btn-labs-menu"
+            class="pill-btn"
+            style="border-color: #4FC3F7; background: rgba(79, 195, 247, 0.14); color: #4FC3F7; padding: 5px 10px;"
+            onclick="window.sendaToggleLabsMenu(event)"
+            title="Open All NASA Science Labs, EVA Optimizers & Mission Exports"
+          >
+            🧪 NASA LABS & TOOLS ▾
+          </button>
+          <div
+            id="nasa-labs-dropdown"
+            style="
+              display: none;
+              position: absolute;
+              top: calc(100% + 8px);
+              right: 0;
+              width: 340px;
+              background: rgba(13, 18, 26, 0.98);
+              border: 1px solid #4FC3F7;
+              border-radius: 8px;
+              box-shadow: 0 18px 42px rgba(0, 0, 0, 0.78);
+              padding: 10px;
+              z-index: 950;
+              font-family: 'JetBrains Mono', monospace;
+            "
+          >
+            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
+              1 · PLANETARY GEOLOGY & ASTROBIOLOGY LABS
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 9px;">
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenDrillModal();">
+                <div style="color:#A371F7;font-size:10.5px;font-weight:700;">🔬 Drill & LIBS Laser</div>
+                <div style="font-size:8.5px;color:#8B98A5;">10cm Core + UV Zapper</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenGprModal();">
+                <div style="color:#7CD992;font-size:10.5px;font-weight:700;">📡 RIMFAX GPR Radar</div>
+                <div style="font-size:8.5px;color:#8B98A5;">0–15m Subsurface Scan</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenSherlocModal();">
+                <div style="color:#FF7B72;font-size:10.5px;font-weight:700;">🧬 SHERLOC Bio-Lab</div>
+                <div style="font-size:8.5px;color:#8B98A5;">UV-Raman & SAM Organics</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenPairedModal();">
+                <div style="color:#E8B04B;font-size:10.5px;font-weight:700;">⚖ T05 vs T06 Pair</div>
+                <div style="font-size:8.5px;color:#8B98A5;">10m Hollow vs Ridge</div>
+              </button>
+            </div>
+
+            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
+              2 · EVA LIFE SUPPORT & ROUTE OPTIMIZATION
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 9px;">
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenBioTwinModal();">
+                <div style="color:#FF5A5F;font-size:10.5px;font-weight:700;">🫀 xEMU Bio-Twin</div>
+                <div style="font-size:8.5px;color:#8B98A5;">Live ECG & Organ Dose</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenParetoModal();">
+                <div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">📈 Pareto Optimizer</div>
+                <div style="font-size:8.5px;color:#8B98A5;">α Sci · β O₂ · γ Safety</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenMonteCarloModal();">
+                <div style="color:#FFB020;font-size:10.5px;font-weight:700;">🎲 1,000× Monte Carlo</div>
+                <div style="font-size:8.5px;color:#8B98A5;">Stochastic O₂ Survival</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenMsrRackModal();">
+                <div style="color:#E8B04B;font-size:10.5px;font-weight:700;">🧪 MSR Tube Triage</div>
+                <div style="font-size:8.5px;color:#8B98A5;">8 Ti Tubes & Knapsack</div>
+              </button>
+            </div>
+
+            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
+              3 · FLIGHT DATA FILES & GIS EXPORTS
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenChecklistModal();">
+                <div style="color:#7CD992;font-size:10px;font-weight:700;">📋 Wrist Cuff</div>
+                <div style="font-size:8px;color:#8B98A5;">EVA Checklist</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenExecutiveReport();">
+                <div style="color:#E8B04B;font-size:10px;font-weight:700;">📄 Dossier</div>
+                <div style="font-size:8px;color:#8B98A5;">PDF Report</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaExportGeoJSON();">
+                <div style="color:#4FC3F7;font-size:10px;font-weight:700;">💾 .GeoJSON</div>
+                <div style="font-size:8px;color:#8B98A5;">QGIS / JMARS</div>
+              </button>
+            </div>
+
+            <div style="border-top: 1px solid #1F2A37; padding-top: 6px; font-size: 9px; color: #8B98A5; display: flex; justify-content: space-between;">
+              <span>⌨ Shortcuts: <strong>Space</strong> Play/Pause · <strong>1/2/3</strong> Mode</span>
+              <span><strong>S</strong> Split · <strong>F</strong> Theatre</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="btn-split-view"
+          class="pill-btn"
+          style="border-color: #4FC3F7; color: #4FC3F7; padding: 5px 8px;"
+          onclick="window.sendaToggleSplitView()"
+          title="Toggle Synchronized 2D GIS + 3D DEM Dual-Screen Split View (Key: S)"
+        >
+          🌓 SPLIT
+        </button>
+        <button
+          id="btn-theatre-mode"
+          class="pill-btn"
+          style="border-color: #8B98A5; color: #E6EDF3; padding: 5px 8px;"
+          onclick="window.sendaToggleTheatre()"
+          title="Toggle Fullscreen JPL Theatre Mode (Key: F)"
+        >
+          ⛶
+        </button>
+        <div
+          style="
+            display: flex;
+            background: #0B0F14;
+            border: 1px solid #1F2A37;
+            border-radius: 6px;
+            padding: 2px;
+          "
+        >
+          <button id="mode-btn-PLAN" class="mode-btn active" onclick="window.sendaSetMode('PLAN')">
+            PLAN
+          </button>
+          <button id="mode-btn-FIELD" class="mode-btn" onclick="window.sendaSetMode('FIELD')">
+            FIELD
+          </button>
+          <button id="mode-btn-3D" class="mode-btn" onclick="window.sendaSetMode('3D')">
+            3D DEM
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main 3-Column Mission Control Area -->
+    <div style="flex: 1; display: flex; min-height: 0; overflow: hidden;">
+      <!-- Left: Multi-Mission Layer Panel -->
+      <aside
+        id="left-sidebar"
+        style="
+          width: 268px;
+          background: #121821;
+          border-right: 1px solid #1F2A37;
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            padding: 10px 14px;
+            border-bottom: 1px solid #1F2A37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div>
+            <div class="mono-label" style="color: #E6EDF3;">MULTI-MISSION LAYERS</div>
+            <div style="font-size: 11px; color: #8B98A5;">Gale Boxwork Bbox (2 × 2 km)</div>
+          </div>
+          <span class="prov-chip chip-measured">9 LAYERS</span>
+        </div>
+        <div
+          id="layer-list-container"
+          style="padding: 8px 10px; display: flex; flex-direction: column; gap: 7px;"
+        ></div>
+        <div
+          style="
+            margin-top: auto;
+            padding: 10px 12px;
+            border-top: 1px solid #1F2A37;
+            background: #0B0F14;
+            font-size: 11px;
+            color: #8B98A5;
+            line-height: 1.4;
+          "
+        >
+          <div class="mono-label" style="color: #E8B04B; margin-bottom: 3px;">
+            CENTRAL SCIENCE QUESTION
+          </div>
+          Why do Mount Sharp boxwork ridges resist erosion while hollows do not? Paired drill sites:{' '}
+          <strong style="color: #E6EDF3;">T05 Valle de la Luna</strong> vs.{' '}
+          <strong style="color: #E6EDF3;">T06 Nevado Sajama</strong> (10 m apart).
+        </div>
+      </aside>
+
+      <!-- Center: Interactive Map & 3D DEM Viewport -->
+      <main style="position: relative; flex: 1; height: 100%; background: #0B0F14;">
+        <canvas id="senda-map-canvas" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+
+        <!-- Fixed DEM Disclaimer (Section 6) -->
+        <div
+          style="
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(18, 24, 33, 0.92);
+            border: 1px solid #1F2A37;
+            border-left: 3px solid #FFB020;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            pointer-events: none;
+          "
+        >
+          <strong style="color: #FFB020;">DEM NOTICE:</strong> Obstacles &lt; 2 m not visible in DEM
+        </div>
+
+        <!-- Route Legend -->
+        <div
+          style="
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(18, 24, 33, 0.92);
+            border: 1px solid #1F2A37;
+            border-radius: 5px;
+            padding: 6px 11px;
+            display: flex;
+            gap: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+          "
+        >
+          <span><i style="display:inline-block;width:12px;height:3px;background:#E8B04B;vertical-align:middle;"></i> Scientific</span>
+          <span><i style="display:inline-block;width:12px;height:3px;background:#4FC3F7;vertical-align:middle;"></i> Fast</span>
+          <span><i style="display:inline-block;width:12px;height:3px;background:#7CD992;vertical-align:middle;"></i> Safe</span>
+        </div>
+
+        <!-- Floating 2D Interactive A* Pathfinder & Hazard Painter Toolbar -->
+        <div
+          id="hud-map-tools"
+          style="
+            position: absolute;
+            top: 48px;
+            left: 12px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background: rgba(18, 24, 33, 0.94);
+            border: 1px solid #1F2A37;
+            border-radius: 6px;
+            padding: 5px 9px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            z-index: 14;
+          "
+        ></div>
+
+        <!-- Floating 3D Camera & Simulation Controls (visible in 3D DEM Mode) -->
+        <div
+          id="hud-3d-controls"
+          style="
+            display: none;
+            position: absolute;
+            top: 48px;
+            left: 12px;
+            right: 12px;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 15;
+          "
+        ></div>
+
+        <!-- Guided NASA Jury Pitch Tour Overlay Banner -->
+        <div
+          id="jury-tour-banner"
+          style="
+            display: none;
+            position: absolute;
+            bottom: 46px;
+            left: 18px;
+            right: 18px;
+            background: rgba(18, 24, 33, 0.96);
+            border: 1.5px solid #E4572E;
+            border-radius: 8px;
+            padding: 10px 14px;
+            box-shadow: 0 0 28px rgba(228, 87, 46, 0.35);
+            z-index: 25;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+          "
+        ></div>
+
+        <!-- Bottom Scale & Live Cursor Telemetry -->
+        <div
+          style="
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+          "
+        >
+          <div
+            style="
+              background: rgba(18, 24, 33, 0.92);
+              border: 1px solid #1F2A37;
+              border-radius: 4px;
+              padding: 5px 10px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+            "
+          >
+            <div
+              style="
+                width: 68px;
+                height: 6px;
+                border-left: 2px solid #E6EDF3;
+                border-right: 2px solid #E6EDF3;
+                border-bottom: 2px solid #E6EDF3;
+              "
+            ></div>
+            <span>250 m (IAU Mars 2015)</span>
+          </div>
+          <div
+            id="cursor-telemetry"
+            style="
+              background: rgba(18, 24, 33, 0.92);
+              border: 1px solid #1F2A37;
+              border-radius: 4px;
+              padding: 5px 12px;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+              color: #8B98A5;
+            "
+          >
+            LAT <strong style="color: #E6EDF3;">-4.79570°N</strong> &nbsp; LON{' '}
+            <strong style="color: #E6EDF3;">137.38900°E</strong> &nbsp; ELEV{' '}
+            <strong style="color: #E8B04B;">-3668.4 m</strong> &nbsp; SLOPE{' '}
+            <strong style="color: #7CD992;">6.2°</strong>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right: Target Dossier & Route Comparator / Field HUD -->
+      <aside
+        id="right-panel-container"
+        style="
+          width: 365px;
+          background: #121821;
+          border-left: 1px solid #1F2A37;
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+          overflow-y: auto;
+        "
+      ></aside>
+    </div>
+
+    <!-- Bottom Environment Strip -->
+    <footer
+      style="
+        height: 84px;
+        background: #121821;
+        border-top: 1px solid #1F2A37;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        gap: 14px;
+        flex-shrink: 0;
+      "
+    >
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 170px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="mono-label">REMS DIURNAL TEMP</span>
+            <span class="prov-chip chip-measured">MEASURED</span>
+          </div>
+          <div
+            style="
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 13px;
+              font-weight: 700;
+              margin-top: 3px;
+            "
+          >
+            −23.4 °C <small style="color: #8B98A5; font-weight: 400;">(−76 to −12 °C)</small>
+          </div>
+          <div
+            style="
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 10px;
+              color: #7CD992;
+              margin-top: 2px;
+            "
+          >
+            EVA Window: 09:30–15:30 LTST
+          </div>
+        </div>
+        <svg
+          id="rems-temp-svg"
+          viewBox="0 0 380 62"
+          style="
+            width: 380px;
+            height: 64px;
+            background: #0B0F14;
+            border: 1px solid #1F2A37;
+            border-radius: 5px;
+          "
+        ></svg>
+      </div>
+
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(5, minmax(115px, 1fr));
+          gap: 8px;
+          flex: 1;
+          font-family: 'JetBrains Mono', monospace;
+        "
+      >
+        <div class="sub-box">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="mono-label">PRESSURE (REMS)</span>
+            <span class="prov-chip chip-measured">MEASURED</span>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-top: 4px;">
+            745 Pa <small style="color: #8B98A5; font-weight: 400;">(712–778)</small>
+          </div>
+        </div>
+        <div class="sub-box">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="mono-label">RAD DOSE RATE</span>
+            <span class="prov-chip chip-measured">MEASURED</span>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 700; color: #4FC3F7; margin-top: 4px;">
+            0.64 mSv/sol <small style="color: #8B98A5; font-weight: 400;">(RAD)</small>
+          </div>
+        </div>
+        <div class="sub-box">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="mono-label">DUST OPACITY (τ)</span>
+            <span class="prov-chip chip-measured">MEASURED</span>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-top: 4px;">
+            τ = 0.45 <small style="color: #8B98A5; font-weight: 400;">(Nominal)</small>
+          </div>
+        </div>
+        <div class="sub-box">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="mono-label">ORBITAL RELAYS</span>
+            <span class="prov-chip chip-modeled">MODELED</span>
+          </div>
+          <div style="font-size: 11.5px; font-weight: 700; color: #7CD992; margin-top: 4px;">
+            MRO 10:15 · TGO 12:40
+          </div>
+        </div>
+        <div class="sub-box">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="mono-label">SUNSET / HORIZON</span>
+            <span class="prov-chip chip-modeled">MODELED</span>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 700; color: #E8B04B; margin-top: 4px;">
+            17:52 LTST <small style="color: #8B98A5; font-weight: 400;">(Dawn 05:48)</small>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Generic Engineering Modal (T05 vs T06 Comparator, A* == Dijkstra Proof, NASA EVA Cuff Checklist) -->
+    <div
+      id="generic-modal"
+      onclick="if(event.target===this) window.sendaCloseGenericModal()"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 15, 20, 0.84);
+        align-items: center;
+        justify-content: center;
+        z-index: 210;
+        padding: 20px;
+      "
+    >
+      <div
+        id="generic-modal-content"
+        style="
+          width: 720px;
+          max-width: 95vw;
+          max-height: 88vh;
+          overflow-y: auto;
+          background: #121821;
+          border: 1.5px solid #4FC3F7;
+          border-radius: 8px;
+          padding: 18px 22px;
+          box-shadow: 0 0 42px rgba(11, 15, 20, 0.9);
+        "
+      ></div>
+    </div>
+
+    <!-- Red Solar Particle Event Modal -->
+    <div
+      id="spe-modal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 15, 20, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+      "
+    >
+      <div
+        style="
+          width: 480px;
+          background: #121821;
+          border: 2px solid #FF5A5F;
+          border-radius: 8px;
+          padding: 20px 22px;
+          box-shadow: 0 0 36px rgba(255, 90, 95, 0.45);
+        "
+      >
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <span
+            style="
+              background: #FF5A5F;
+              color: #0B0F14;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+              font-weight: 700;
+              padding: 3px 8px;
+              border-radius: 3px;
+            "
+            >LEVEL 3 EMERGENCY · RETURN NOW</span
+          >
+          <span class="prov-chip chip-modeled">MODELED</span>
+        </div>
+        <h2
+          style="
+            margin: 0 0 8px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 17px;
+            color: #FF5A5F;
+          "
+        >
+          SOLAR PARTICLE EVENT — go to nearest shelter
+        </h2>
+        <p style="margin: 0 0 14px 0; font-size: 13px; line-height: 1.5;">
+          High-energy proton event (SPE) detected. Route automatically redrawn toward
+          <strong>T08 Eastern boxwork escarpment</strong> for maximum topographic horizon shielding.
+        </p>
+        <div
+          class="sub-box"
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            margin-bottom: 16px;
+          "
+        >
+          <div>
+            <div class="mono-label">DESIGNATED SHELTER</div>
+            <strong style="color: #7CD992;">T08 · Eastern Boxwork Wall</strong>
+          </div>
+          <div>
+            <div class="mono-label">EST. DOSE REDUCTION</div>
+            <strong style="color: #4FC3F7;">−38.0% (Sky-View Blocking)</strong>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button
+            onclick="window.sendaCloseModal()"
+            style="
+              border: none;
+              border-radius: 5px;
+              padding: 9px 16px;
+              background: #FF5A5F;
+              color: #0B0F14;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 12px;
+              font-weight: 700;
+              cursor: pointer;
+            "
+          >
+            ACKNOWLEDGE & FOLLOW RED SHELTER ROUTE (→ T08)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./senda_app.js"></script>
+  </body>
+</html>
