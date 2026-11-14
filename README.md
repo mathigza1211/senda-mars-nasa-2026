@@ -163,6 +163,18 @@ python scripts/process_dem.py
 
 ---
 
+## 👨‍🚀 8. Official Mission Team — SENDA (NASA Space Apps Challenge 2026)
+
+| # | Team Member | Official Email |
+| :---: | :--- | :--- |
+| **1** | **Jhon Alex Centeno** | `alexpiper616@gmail.com` |
+| **2** | **Jose Elias Cabeza** | `jose.cabeza@utec.edu.pe` |
+| **3** | **Esau Arqueros** | `esau.arqueros.24@gmail.com` |
+| **4** | **Anderson Morales Durand** | `moralesdurandanderson@gmail.com` |
+| **5** | **Mathias** | `mathigza@gmail.com` |
+
+---
+
 <div align="center">
   <strong>Developed for the NASA Space Apps Challenge 2026</strong><br>
   <em>"Safe paths to Martian science — From orbital pixels to human footsteps on Mount Sharp."</em>

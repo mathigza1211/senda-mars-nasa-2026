@@ -3518,11 +3518,22 @@ window.sendaOpenExecutiveReport = () => {
       </div>
     </div>
 
-    <div class="sub-box" style="margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.45;">
+    <div class="sub-box" style="margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.45;">
       <div class="mono-label" style="color:#E4572E;margin-bottom:4px;">DATA PROVENANCE & SCIENTIFIC INTEGRITY STATEMENT (NASA SPACE APPS RUBRIC COMPLIANCE):</div>
       <div>• <strong style="color:#4FC3F7;">MEASURED:</strong> HiRISE PDS4 topography, MRO CRISM spectral indices, MSL Curiosity REMS (−13°C to −79°C) and RAD (0.64 mSv/sol GCR) telemetry.</div>
       <div>• <strong style="color:#E8B04B;">MODELED:</strong> 8-neighbor A* anisotropic cost surface, Pandolf (1977) 0.38g metabolic O₂ & LiOH CO₂ scrubbing, 360° horizon sky-view radiation shielding, and 1,000-run Monte Carlo survival confidence.</div>
       <div>• <strong style="color:#A371F7;">ASSUMED:</strong> xEMU 300 L O₂ capacity, 20° maximum astronaut slope threshold, and ×1.3 contingency walkback reserve factor.</div>
+    </div>
+
+    <div class="sub-box" style="margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.45;border-color:#7CD992;">
+      <div class="mono-label" style="color:#7CD992;margin-bottom:4px;">👨‍🚀 OFFICIAL MISSION TEAM — SENDA (NASA SPACE APPS 2026):</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+        <div>• <strong>Jhon Alex Centeno</strong> — <span style="color:#4FC3F7;">alexpiper616@gmail.com</span></div>
+        <div>• <strong>Jose Elias Cabeza</strong> — <span style="color:#4FC3F7;">jose.cabeza@utec.edu.pe</span></div>
+        <div>• <strong>Esau Arqueros</strong> — <span style="color:#4FC3F7;">esau.arqueros.24@gmail.com</span></div>
+        <div>• <strong>Anderson Morales Durand</strong> — <span style="color:#4FC3F7;">moralesdurandanderson@gmail.com</span></div>
+        <div>• <strong>Mathias</strong> — <span style="color:#4FC3F7;">mathigza@gmail.com</span></div>
+      </div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;">
