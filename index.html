@@ -188,6 +188,182 @@
     </style>
   </head>
   <body>
+    <!-- PORTADA PRINCIPAL: SENDA — MARS GLOBE (PLANETARY MISSION SELECTOR) -->
+    <section
+      id="mars-globe-portal"
+      style="
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: radial-gradient(circle at 50% 48%, #1A110E 0%, #0B0F14 62%, #06080B 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      "
+    >
+      <!-- Globe Top Header -->
+      <div
+        style="
+          height: 58px;
+          padding: 0 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(228, 87, 46, 0.22);
+          background: rgba(11, 15, 20, 0.78);
+          backdrop-filter: blur(8px);
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div
+            style="
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              border: 1.5px solid #E4572E;
+              background: radial-gradient(circle at 35% 35%, #E4572E, #7A2310);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: 'JetBrains Mono', monospace;
+              font-weight: 700;
+              font-size: 13px;
+              color: #FFF;
+            "
+          >
+            S
+          </div>
+          <div>
+            <strong style="font-size: 16px; letter-spacing: 0.14em; color: #E6EDF3;">SENDA</strong>
+            <span style="font-size: 10px; color: #8B98A5; font-family: 'JetBrains Mono', monospace; margin-left: 8px;">
+              ASTRONAUT EVA MISSION OS
+            </span>
+          </div>
+        </div>
+
+        <div style="position: relative; width: 340px; max-width: 42vw;">
+          <input
+            id="mars-search-input"
+            type="text"
+            placeholder="🔍 Search a place on Mars (e.g. Mount Sharp, Jezero, T06)..."
+            oninput="window.sendaFilterMarsSites(this.value)"
+            style="
+              width: 100%;
+              background: rgba(18, 24, 33, 0.9);
+              border: 1px solid #2A3544;
+              border-radius: 20px;
+              padding: 7px 14px;
+              color: #E6EDF3;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+              outline: none;
+            "
+          />
+        </div>
+
+        <div
+          style="
+            background: rgba(228, 87, 46, 0.14);
+            border: 1px solid rgba(228, 87, 46, 0.45);
+            border-radius: 16px;
+            padding: 5px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #E6EDF3;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+          "
+        >
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #E4572E; display: inline-block;"></span>
+          CURRENT PLANET: MARS
+        </div>
+      </div>
+
+      <!-- Globe Center Viewport + Floating Site Card -->
+      <div style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <canvas id="mars-globe-canvas" style="width: 100%; height: 100%; display: block; cursor: pointer;"></canvas>
+
+        <!-- Left Quick Sector Pills -->
+        <div
+          style="
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 235px;
+          "
+        >
+          <div class="mono-label" style="color: #E4572E; margin-bottom: 2px;">ACTIVE LANDING SECTORS</div>
+          <div id="globe-sector-list" style="display: flex; flex-direction: column; gap: 7px;"></div>
+        </div>
+
+        <!-- Right Selected Base Telemetry Card (Matches Reference) -->
+        <div
+          id="globe-site-card"
+          style="
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 295px;
+            background: rgba(18, 24, 33, 0.88);
+            border: 1px solid rgba(228, 87, 46, 0.4);
+            border-radius: 10px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
+          "
+        ></div>
+
+        <div
+          style="
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: #E4572E;
+            pointer-events: none;
+          "
+        >
+          CLICK ON A BASE TO EXPLORE
+        </div>
+      </div>
+
+      <!-- Globe Bottom Telemetry Strip -->
+      <div
+        style="
+          height: 40px;
+          padding: 0 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(11, 15, 20, 0.88);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #8B98A5;
+        "
+      >
+        <div style="display: flex; gap: 22px;">
+          <span>MARTIAN SOL <strong style="color: #E8B04B;">SOL 5074</strong></span>
+          <span>OUTSIDE TEMP <strong style="color: #E6EDF3;">-23.4°C</strong></span>
+          <span>WIND SPEED <strong style="color: #E6EDF3;">14.2 m/s</strong></span>
+          <span>SKY CONDITION <strong style="color: #7CD992;">Clear / Thin Haze</strong></span>
+        </div>
+        <div>MARS-NET TELEMETRY · <strong style="color: #4FC3F7;">JPL MARS TREK + USGS + MSL</strong></div>
+      </div>
+    </section>
+
+    <!-- TACTICAL MISSION SHELL (BASE TERRAIN VIEW) -->
     <!-- TopBar -->
     <header
       style="
@@ -287,14 +463,14 @@
         <span id="sol-phase-badge" class="prov-chip chip-modeled">MORNING EVA</span>
       </div>
 
-      <!-- Mode Selector & Categorized NASA Engineering Tools -->
+      <!-- Clean Astronaut Mission Control Controls -->
       <div style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; position: relative;">
         <button
           id="btn-jury-tour"
           class="pill-btn"
           style="border-color: #E4572E; background: rgba(228, 87, 46, 0.22); color: #E6EDF3; padding: 5px 9px;"
           onclick="window.sendaToggleJuryTour()"
-          title="Launch 6-Step Guided NASA Space Apps Jury Presentation Tour"
+          title="Launch 6-Step Guided Mission Demo"
         >
           🎬 DEMO
         </button>
@@ -303,142 +479,10 @@
           class="pill-btn active"
           style="border-color: #7CD992; color: #7CD992; padding: 5px 8px;"
           onclick="window.sendaToggleAudio()"
-          title="Toggle NASA Quindar Telemetry Tones & CAPCOM Voice Synthesis"
+          title="Toggle CAPCOM Voice & Quindar Tones"
         >
           🔊
         </button>
-        <button
-          class="pill-btn"
-          style="border-color: #7CD992; background: rgba(124, 217, 146, 0.16); color: #7CD992; padding: 5px 9px;"
-          onclick="window.sendaOpenNasaDataHub()"
-          title="Inspect All 5 Official NASA Space Apps Challenge Data & Resources + Live NASA DONKI API"
-        >
-          🛰️ NASA DATA (5/5)
-        </button>
-        <button
-          class="pill-btn"
-          style="border-color: #E8B04B; color: #E8B04B; padding: 5px 9px;"
-          onclick="window.sendaOpenPairedModal()"
-          title="Compare Paired Boxwork Drill Sites T05 (Hollow) vs T06 (Ridge)"
-        >
-          ⚖ T05 vs T06
-        </button>
-        <button
-          class="pill-btn"
-          style="border-color: #A371F7; color: #A371F7; padding: 5px 9px;"
-          onclick="window.sendaOpenDrillModal()"
-          title="Inspect 10cm Drill Core Stratigraphy, Laser Zapper & ChemCam LIBS"
-        >
-          🔬 DRILL LAB
-        </button>
-
-        <!-- Categorized NASA Labs & Engineering Dropdown Menu -->
-        <div style="position: relative;">
-          <button
-            id="btn-labs-menu"
-            class="pill-btn"
-            style="border-color: #4FC3F7; background: rgba(79, 195, 247, 0.14); color: #4FC3F7; padding: 5px 10px;"
-            onclick="window.sendaToggleLabsMenu(event)"
-            title="Open All NASA Science Labs, EVA Optimizers & Mission Exports"
-          >
-            🧪 NASA LABS & TOOLS ▾
-          </button>
-          <div
-            id="nasa-labs-dropdown"
-            style="
-              display: none;
-              position: absolute;
-              top: calc(100% + 8px);
-              right: 0;
-              width: 340px;
-              background: rgba(13, 18, 26, 0.98);
-              border: 1px solid #4FC3F7;
-              border-radius: 8px;
-              box-shadow: 0 18px 42px rgba(0, 0, 0, 0.78);
-              padding: 10px;
-              z-index: 950;
-              font-family: 'JetBrains Mono', monospace;
-            "
-          >
-            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
-              1 · PLANETARY GEOLOGY & ASTROBIOLOGY LABS
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 9px;">
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenDrillModal();">
-                <div style="color:#A371F7;font-size:10.5px;font-weight:700;">🔬 Drill & LIBS Laser</div>
-                <div style="font-size:8.5px;color:#8B98A5;">10cm Core + UV Zapper</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenGprModal();">
-                <div style="color:#7CD992;font-size:10.5px;font-weight:700;">📡 RIMFAX GPR Radar</div>
-                <div style="font-size:8.5px;color:#8B98A5;">0–15m Subsurface Scan</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenSherlocModal();">
-                <div style="color:#FF7B72;font-size:10.5px;font-weight:700;">🧬 SHERLOC Bio-Lab</div>
-                <div style="font-size:8.5px;color:#8B98A5;">UV-Raman & SAM Organics</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenPairedModal();">
-                <div style="color:#E8B04B;font-size:10.5px;font-weight:700;">⚖ T05 vs T06 Pair</div>
-                <div style="font-size:8.5px;color:#8B98A5;">10m Hollow vs Ridge</div>
-              </button>
-            </div>
-
-            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
-              2 · EVA LIFE SUPPORT & ROUTE OPTIMIZATION
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 9px;">
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenBioTwinModal();">
-                <div style="color:#FF5A5F;font-size:10.5px;font-weight:700;">🫀 xEMU Bio-Twin</div>
-                <div style="font-size:8.5px;color:#8B98A5;">Live ECG & Organ Dose</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenParetoModal();">
-                <div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">📈 Pareto Optimizer</div>
-                <div style="font-size:8.5px;color:#8B98A5;">α Sci · β O₂ · γ Safety</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenMonteCarloModal();">
-                <div style="color:#FFB020;font-size:10.5px;font-weight:700;">🎲 1,000× Monte Carlo</div>
-                <div style="font-size:8.5px;color:#8B98A5;">Stochastic O₂ Survival</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenMsrRackModal();">
-                <div style="color:#E8B04B;font-size:10.5px;font-weight:700;">🧪 MSR Tube Triage</div>
-                <div style="font-size:8.5px;color:#8B98A5;">8 Ti Tubes & Knapsack</div>
-              </button>
-            </div>
-
-            <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
-              3 · OFFICIAL NASA DATA HUB, FLYOVER & EXPORTS
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px;">
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenNasaDataHub();">
-                <div style="color:#7CD992;font-size:10px;font-weight:700;">🛰️ NASA Data (5/5)</div>
-                <div style="font-size:8px;color:#8B98A5;">Mars Trek · USGS · DONKI</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaLaunchCuriosityFlyover();">
-                <div style="color:#4FC3F7;font-size:10px;font-weight:700;">🎬 3D Flyover Tour</div>
-                <div style="font-size:8px;color:#8B98A5;">Mount Sharp Regions</div>
-              </button>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenChecklistModal();">
-                <div style="color:#7CD992;font-size:10px;font-weight:700;">📋 Wrist Cuff</div>
-                <div style="font-size:8px;color:#8B98A5;">EVA Checklist</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenExecutiveReport();">
-                <div style="color:#E8B04B;font-size:10px;font-weight:700;">📄 Dossier</div>
-                <div style="font-size:8px;color:#8B98A5;">PDF Report</div>
-              </button>
-              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaExportGeoJSON();">
-                <div style="color:#4FC3F7;font-size:10px;font-weight:700;">💾 .GeoJSON</div>
-                <div style="font-size:8px;color:#8B98A5;">QGIS / JMARS</div>
-              </button>
-            </div>
-
-            <div style="border-top: 1px solid #1F2A37; padding-top: 6px; font-size: 9px; color: #8B98A5; display: flex; justify-content: space-between;">
-              <span>⌨ Shortcuts: <strong>Space</strong> Play/Pause · <strong>1/2/3</strong> Mode</span>
-              <span><strong>S</strong> Split · <strong>F</strong> Theatre</span>
-            </div>
-          </div>
-        </div>
-
         <button
           id="btn-split-view"
           class="pill-btn"
@@ -453,7 +497,7 @@
           class="pill-btn"
           style="border-color: #8B98A5; color: #E6EDF3; padding: 5px 8px;"
           onclick="window.sendaToggleTheatre()"
-          title="Toggle Fullscreen JPL Theatre Mode (Key: F)"
+          title="Toggle Fullscreen Visor Mode (Key: F)"
         >
           ⛶
         </button>
@@ -527,9 +571,28 @@
           <div class="mono-label" style="color: #E8B04B; margin-bottom: 3px;">
             CENTRAL SCIENCE QUESTION
           </div>
-          Why do Mount Sharp boxwork ridges resist erosion while hollows do not? Paired drill sites:{' '}
-          <strong style="color: #E6EDF3;">T05 Valle de la Luna</strong> vs.{' '}
+          Why do Mount Sharp boxwork ridges resist erosion while hollows do not? Paired drill sites:
+          <strong style="color: #E6EDF3;">T05 Valle de la Luna</strong> vs.
           <strong style="color: #E6EDF3;">T06 Nevado Sajama</strong> (10 m apart).
+        </div>
+        <div style="padding: 10px 12px; border-top: 1px solid #1F2A37; background: #121821;">
+          <button
+            onclick="window.sendaShowGlobePortal()"
+            style="
+              width: 100%;
+              padding: 8px 10px;
+              border-radius: 5px;
+              border: 1px solid rgba(228, 87, 46, 0.55);
+              background: rgba(228, 87, 46, 0.12);
+              color: #E4572E;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+              font-weight: 700;
+              cursor: pointer;
+            "
+          >
+            ← BACK TO MARS GLOBE
+          </button>
         </div>
       </aside>
 

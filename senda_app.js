@@ -383,8 +383,80 @@ function makeChipHTML(kind = 'MODELED') {
   return `<span class="prov-chip ${cls}">${label}</span>`;
 }
 
+// Planetary Mars Globe Landing Sectors (Portada Principal)
+const MARS_PLANETARY_SITES = [
+  {
+    id: 'gale_boxwork',
+    name: 'MOUNT SHARP BOXWORK',
+    badge: 'ACTIVE',
+    coords: '4.80°S · 137.39°E',
+    region: 'Gale Crater · Aeolis Mons',
+    temp: '-23.4°C',
+    dust: 'Low (0.45 τ)',
+    rad: '0.64 mSv/sol',
+    crew: 'Active Habitat · 2 EVA Crew (EV-1 / EV-2)',
+    status: 'NOMINAL',
+    statusCol: '#7CD992',
+    globeX: -0.18, globeY: 0.14,
+    targetId: 'T06',
+    desc: 'Primary NASA 2026 EVA site. Polygonal CaSO₄ boxwork ridges & clay hollows (Sols 4418–4711).'
+  },
+  {
+    id: 'rustic_base',
+    name: 'RUSTIC CANYON BASE',
+    badge: 'STAGING HUB',
+    coords: '4.78°S · 137.40°E',
+    region: 'Lower Mount Sharp Base (T01)',
+    temp: '-24.1°C',
+    dust: 'Low (0.42 τ)',
+    rad: '0.61 mSv/sol',
+    crew: 'S-Band 4.5m Relay Mast · O₂ Depot',
+    status: 'GO FOR EVA',
+    statusCol: '#4FC3F7',
+    globeX: 0.14, globeY: -0.05,
+    targetId: 'T01',
+    desc: 'Staging crater, 300 L O₂ recharge depot, and primary walkback safety anchor.'
+  },
+  {
+    id: 't08_shelter',
+    name: 'EASTERN BOXWORK WALL',
+    badge: 'SPE SHELTER',
+    coords: '4.81°S · 137.38°E',
+    region: 'Boxwork Escarpment (T08)',
+    temp: '-26.0°C',
+    dust: 'Moderate (0.48 τ)',
+    rad: '-38% Dose',
+    crew: 'Natural Radiation Shelter (−38% SPE)',
+    status: 'STANDBY',
+    statusCol: '#E8B04B',
+    globeX: -0.34, globeY: -0.22,
+    targetId: 'T08',
+    desc: '4.5 m steep basaltic-sulfate wall providing emergency horizon blocking during Solar Particle Events.'
+  },
+  {
+    id: 'jezero_analog',
+    name: 'JEZERO CRATER DELTA',
+    badge: 'RAW IMAGES',
+    coords: '18.38°N · 77.58°E',
+    region: 'Perseverance / SHERLOC Analog',
+    temp: '-63.0°C',
+    dust: 'Low (0.28 τ)',
+    rad: '0.24 mSv/d',
+    crew: 'Cross-Mission Raw Images & RIMFAX',
+    status: 'TELEMETRY',
+    statusCol: '#A371F7',
+    globeX: 0.36, globeY: -0.28,
+    targetId: 'T05',
+    desc: 'Perseverance SHERLOC UV-Raman & RIMFAX GPR calibration sector integrated into SENDA Labs.'
+  }
+];
+
 // Application State
 const state = {
+  showGlobePortal: true,
+  selectedMarsSiteId: 'gale_boxwork',
+  marsSearchQuery: '',
+  rightDivision: 'TRIP', // 'TRIP' | 'SURVIVAL' | 'SCIENCE' | 'DATA'
   mode: 'PLAN',
   rightTab3D: 'SIM', // 'SIM' (Live EVA Simulator in 3D) or 'DOSSIER' (Science Target Dossier in 3D)
   mapTool: 'SELECT', // 'SELECT' | 'ASTAR_DEST' | 'PAINT_HAZARD'
@@ -2317,334 +2389,301 @@ function renderUI() {
     }).join('');
   }
 
-  // Right Panel: Show Simulator in FIELD mode OR when in 3D mode with SIM tab selected
+  // Right Panel: 4 Clean Functional Divisions for Astronaut Needs During Mission
   const rightEl = document.getElementById('right-panel-container');
   if (rightEl) {
-    const tab3DBanner = state.mode === '3D' ? `
-      <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid #1F2A37;background:#0B0F14;">
-        <button onclick="window.sendaSetRightTab3D('SIM')" class="pill-btn ${state.rightTab3D === 'SIM' ? 'active' : ''}" style="flex:1;padding:5px;">
-          🎬 3D EVA SIMULATOR
-        </button>
-        <button onclick="window.sendaSetRightTab3D('DOSSIER')" class="pill-btn ${state.rightTab3D === 'DOSSIER' ? 'active' : ''}" style="flex:1;padding:5px;">
-          🎯 TARGETS & ROUTES
-        </button>
+    const divTabs = [
+      ['TRIP', '🧭 TRIP'],
+      ['SURVIVAL', '🫀 SURVIVAL'],
+      ['SCIENCE', '🔬 SCIENCE'],
+      ['DATA', '🛰️ NASA/COMMS']
+    ];
+    const divBarHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 10px;border-bottom:1px solid #1F2A37;background:#0B0F14;flex-shrink:0;">
+        ${divTabs.map(([id, lbl]) => `
+          <button onclick="window.sendaSetRightDivision('${id}')" class="pill-btn ${state.rightDivision === id ? 'active' : ''}" style="padding:6px 3px;font-size:9.5px;text-align:center;">
+            ${lbl}
+          </button>
+        `).join('')}
       </div>
-    ` : '';
+    `;
 
-    const showSimPanel = state.mode === 'FIELD' || (state.mode === '3D' && state.rightTab3D === 'SIM');
+    const alertColor = fm.level === 'return now' ? '#FF5A5F' : fm.level === 'caution' ? '#FFB020' : '#7CD992';
+    const o2Min = Math.round(fm.o2LeftL * 0.8), o2Max = Math.round(fm.o2LeftL * 1.2);
+    const o2Pct = Math.max(0, Math.min(100, Math.round((fm.o2LeftL / 300) * 100)));
+    const sampleMult = fm.isRover ? 1.0 : (1.0 + 0.014 * state.sampleCarryKg);
+    const gc = selTarget.geochem || { SiO2: 42, FeOT: 18, SO3: 15, CaO: 8, MgO: 8 };
+    const isGo = fm.level === 'info';
+    const isCaution = fm.level === 'caution';
+    const isNoGo = fm.level === 'return now';
 
-    if (showSimPanel) {
-      const alertColor = fm.level === 'return now' ? '#FF5A5F' : fm.level === 'caution' ? '#FFB020' : '#4FC3F7';
-      const o2Min = Math.round(fm.o2LeftL * 0.8), o2Max = Math.round(fm.o2LeftL * 1.2);
-      const o2Pct = Math.max(0, Math.min(100, Math.round((fm.o2LeftL / 300) * 100)));
-      rightEl.innerHTML = `
-        ${tab3DBanner}
+    let divBodyHTML = '';
+
+    if (state.rightDivision === 'TRIP') {
+      divBodyHTML = `
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+          <!-- Trip Feasibility Header (Matches Reference) -->
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:15px;font-weight:700;letter-spacing:0.04em;">TRIP FEASIBILITY</div>
+              <div style="font-size:11px;color:#8B98A5;font-family:'JetBrains Mono',monospace;">T01 Base → ${activeRoute.visits[activeRoute.visits.length - 1]} (${activeRoute.name})</div>
+            </div>
+            <span class="prov-chip chip-modeled">${activeRoute.visits[0]}–${activeRoute.visits[activeRoute.visits.length - 1]}</span>
+          </div>
+
+          <!-- GO / CAUTION / NO-GO Traffic Light -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;">
+            <div style="padding:7px;text-align:center;border-radius:5px;background:${isGo ? '#238636' : '#0B0F14'};border:1px solid ${isGo ? '#7CD992' : '#1F2A37'};color:${isGo ? '#FFF' : '#8B98A5'};">GO</div>
+            <div style="padding:7px;text-align:center;border-radius:5px;background:${isCaution ? '#9E6A03' : '#0B0F14'};border:1px solid ${isCaution ? '#FFB020' : '#1F2A37'};color:${isCaution ? '#FFF' : '#8B98A5'};">CAUTION</div>
+            <div style="padding:7px;text-align:center;border-radius:5px;background:${isNoGo ? '#B62324' : '#0B0F14'};border:1px solid ${isNoGo ? '#FF5A5F' : '#1F2A37'};color:${isNoGo ? '#FFF' : '#8B98A5'};">NO-GO</div>
+          </div>
+
+          <!-- Real-Time Mars Weather Grid -->
+          <div>
+            <div class="mono-label" style="margin-bottom:5px;">REAL-TIME MARS WEATHER (REMS / RAD)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'JetBrains Mono',monospace;">
+              <div class="sub-box">
+                <div class="mono-label">TEMP</div>
+                <div style="font-size:15px;font-weight:700;margin-top:2px;">${sol.tempC}°C</div>
+              </div>
+              <div class="sub-box">
+                <div class="mono-label">WIND</div>
+                <div style="font-size:15px;font-weight:700;margin-top:2px;">14.2 m/s</div>
+              </div>
+              <div class="sub-box">
+                <div class="mono-label">DUST OPACITY</div>
+                <div style="font-size:13.5px;font-weight:700;color:#E8B04B;margin-top:2px;">${state.scenario === 'dust_storm' ? '3.50 τ' : '0.45 τ'}</div>
+              </div>
+              <div class="sub-box">
+                <div class="mono-label">PRESSURE</div>
+                <div style="font-size:13.5px;font-weight:700;margin-top:2px;">745 Pa</div>
+              </div>
+            </div>
+            <div class="sub-box" style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;">
+              <span class="mono-label">RADIATION LEVEL</span>
+              <strong style="font-size:13px;color:${state.scenario === 'solar_storm' ? '#FF5A5F' : '#7CD992'};">${state.scenario === 'solar_storm' ? '2.14 mSv/h (SPE!)' : '0.64 mSv/sol'}</strong>
+            </div>
+          </div>
+
+          <!-- Est. Travel Time & Distance + Primary CTA -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px;border-top:1px solid #1F2A37;">
+            <div>
+              <div class="mono-label">EST. TRAVEL TIME</div>
+              <div style="font-size:19px;font-weight:700;">${activeRoute.metrics.duration_min} min</div>
+            </div>
+            <div>
+              <div class="mono-label">DISTANCE (1-WAY)</div>
+              <div style="font-size:19px;font-weight:700;color:#E4572E;">${(activeRoute.metrics.distance_oneway_m / 1000).toFixed(2)} km</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:6px;">
+            <button onclick="window.sendaStartField()" class="cta-field-btn" style="margin:0;flex:1;background:#E4572E;color:#0B0F14;font-weight:800;">
+              ▶ START EVA ROUTE
+            </button>
+            <button onclick="window.sendaStart3DSim()" class="cta-field-btn" style="margin:0;flex:1;border-color:#4FC3F7;background:rgba(79,195,247,0.16);">
+              🏔️ 3D VIEW →
+            </button>
+          </div>
+
+          <!-- A* Route Selector & Pareto Optimizer -->
+          <div style="border-top:1px solid #1F2A37;padding-top:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span class="mono-label">A* ROUTE PROFILES (3)</span>
+              <div style="display:flex;gap:4px;">
+                <button onclick="window.sendaOpenParetoModal()" class="pill-btn" style="border-color:#E8B04B;color:#E8B04B;font-size:9px;">📈 Pareto</button>
+                <button onclick="window.sendaOpenAstarModal()" class="pill-btn" style="border-color:#4FC3F7;color:#4FC3F7;font-size:9px;">⚡ A*=Dijkstra</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              ${state.routes.map((r) => {
+                const isSel = r.id === state.selectedRouteId;
+                const m = r.metrics;
+                const adjO2 = m.o2_L.map((v) => Math.round(v * sampleMult));
+                return `
+                  <div onclick="window.sendaSelectRoute('${r.id}')" class="route-card" style="padding:7px 9px;border-color:${isSel ? r.color : '#1F2A37'};background:${isSel ? '#0B0F14' : 'rgba(11,15,20,0.45)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                      <div style="display:flex;align-items:center;gap:6px;">
+                        <i style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;"></i>
+                        <strong style="font-size:11.5px;">${r.name}</strong>
+                      </div>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${r.color};font-weight:700;">${m.distance_oneway_m}m · ${adjO2[0]} L O₂</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (state.rightDivision === 'SURVIVAL') {
+      divBodyHTML = `
         <div style="padding:11px 13px;display:flex;flex-direction:column;gap:9px;">
           <div class="sub-box">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-              <span class="mono-label">${state.mode === '3D' ? '3D LIVE EVA SIMULATOR' : 'FIELD EVA SIMULATOR'} (${activeRoute.name.toUpperCase()})</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span class="mono-label">EVA TRAVERSE & LOCOMOTION</span>
               ${makeChipHTML('MODELED')}
             </div>
             <div style="display:flex;gap:5px;">
               <button onclick="window.sendaTogglePlay()" style="flex:1;border:none;border-radius:4px;padding:6px;background:${state.isPlaying ? '#FFB020' : '#E4572E'};color:#0B0F14;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:pointer;">
-                ${state.isPlaying ? '⏸ PAUSE EVA' : '▶ PLAY EVA'}
+                ${state.isPlaying ? '⏸ PAUSE' : '▶ PLAY EVA'}
               </button>
-              <button onclick="window.sendaResetField()" class="small-btn">↺ RESET</button>
+              <button onclick="window.sendaResetField()" class="small-btn">↺</button>
               ${[1, 10, 60].map((s) => `<button onclick="window.sendaSetSpeed(${s})" class="small-btn ${state.speedMult === s ? 'active-spd' : ''}">×${s}</button>`).join('')}
             </div>
             <div style="display:flex;align-items:center;gap:8px;margin-top:7px;">
-              <span class="mono-label">Traverse</span>
+              <span class="mono-label">Progress</span>
               <input type="range" min="0" max="1" step="0.01" value="${state.progress}" oninput="window.sendaSetProgress(this.value)" style="flex:1;accent-color:#E4572E;"/>
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;width:34px;text-align:right;">${Math.round(state.progress * 100)}%</span>
             </div>
-            <!-- Route Quick Switcher inside Simulator -->
-            <div style="display:flex;gap:4px;margin-top:7px;">
-              ${state.routes.map((r) => `
-                <button onclick="window.sendaSelectRoute('${r.id}')" class="pill-btn ${r.id === state.selectedRouteId ? 'active' : ''}" style="flex:1;border-color:${r.id === state.selectedRouteId ? r.color : '#1F2A37'};">
-                  ${r.name}
-                </button>
-              `).join('')}
-            </div>
-            <!-- Locomotion Mode Switcher: xEMU Foot EVA vs LTV Unpressurized Rover -->
             <div style="display:flex;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid #1F2A37;">
-              <button onclick="window.sendaSetLocomotion('FOOT')" class="pill-btn ${state.locomotionMode === 'FOOT' ? 'active' : ''}" style="flex:1;">
-                👣 Foot EVA (Pandolf)
-              </button>
-              <button onclick="window.sendaSetLocomotion('LTV_ROVER')" class="pill-btn ${state.locomotionMode === 'LTV_ROVER' ? 'active' : ''}" style="flex:1;border-color:#4FC3F7;">
-                🛞 LTV Rover (Bekker-Wong)
-              </button>
+              <button onclick="window.sendaSetLocomotion('FOOT')" class="pill-btn ${state.locomotionMode === 'FOOT' ? 'active' : ''}" style="flex:1;">👣 Foot EVA</button>
+              <button onclick="window.sendaSetLocomotion('LTV_ROVER')" class="pill-btn ${state.locomotionMode === 'LTV_ROVER' ? 'active' : ''}" style="flex:1;border-color:#4FC3F7;">🛞 LTV Rover</button>
             </div>
-            ${fm.isRover ? `
-              <div style="display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4FC3F7;background:#090D12;padding:4px 7px;border-radius:4px;">
-                <span>🔋 Li-S Batt: ${fm.roverBattKwh} kWh (${fm.roverBattPct}%)</span>
-                <span style="color:#E8B04B;">🛞 Slip: ${fm.wheelSlipPct}%</span>
-              </div>
-            ` : ''}
           </div>
 
-          <!-- Dual-Crew O2 & Limiting Member -->
           <div class="sub-box" style="border-color:${alertColor};">
             <div style="display:flex;justify-content:space-between;">
-              <span class="mono-label">PLSS REMAINING O₂ (CAPACITY 300 L)</span>
-              ${makeChipHTML('MODELED')}
+              <span class="mono-label">PLSS REMAINING O₂ (300 L)</span>
+              <button onclick="window.sendaOpenBioTwinModal()" class="pill-btn" style="padding:1px 6px;font-size:9px;border-color:#FF7B72;color:#FF7B72;">🫀 BIO-TWIN</button>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;font-family:'JetBrains Mono',monospace;">
-              <span style="font-size:19px;font-weight:700;color:${alertColor};">${Math.round(fm.o2LeftL)} L <small style="font-size:11px;color:#8B98A5;">(${o2Min}–${o2Max} L)</small></span>
+              <span style="font-size:19px;font-weight:700;color:${alertColor};">${Math.round(fm.o2LeftL)} L <small style="font-size:10.5px;color:#8B98A5;">(${o2Min}–${o2Max} L)</small></span>
               <span style="font-size:12px;font-weight:700;">${o2Pct}%</span>
             </div>
             <div style="height:6px;background:#121821;border-radius:4px;overflow:hidden;margin-top:5px;">
               <div style="width:${o2Pct}%;height:100%;background:${alertColor};"></div>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#8B98A5;">
-              <span>Walkback (×1.3): ${fm.o2Req.toFixed(1)} L</span>
-              <span style="color:${alertColor};font-weight:700;">Margin: ${fm.marginL.toFixed(1)} L (${Math.round(fm.marginRatio * 100)}%)</span>
-            </div>
-            <div style="margin-top:6px;padding-top:5px;border-top:1px solid #1F2A37;font-size:10px;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;align-items:center;">
-              <span style="color:#E8B04B;">Limiting: ${fm.limitingMember}</span>
-              <span style="color:#7CD992;">Samples: ${state.sampleCarryKg} kg</span>
-              <button onclick="window.sendaOpenBioTwinModal()" class="pill-btn" style="padding:1px 6px;font-size:9.5px;border-color:#FF7B72;color:#FF7B72;">🫀 BIO TWIN</button>
+              <span>Walkback PNR: ${fm.o2Req.toFixed(1)} L</span>
+              <span style="color:${alertColor};font-weight:700;">Margin: ${fm.marginL.toFixed(1)} L</span>
             </div>
           </div>
 
-          <!-- Live Animated xEMU Biomedical ECG Waveform Strip -->
-          <div class="sub-box" style="padding:6px 9px;background:#090D12;border-color:#1F2A37;">
-            <div style="display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;margin-bottom:3px;">
-              <span style="color:#7CD992;font-weight:700;">🫀 EV-1 ECG LEAD II · ${Math.round(92 + sampleTerrain(fm.pos[0], fm.pos[1]).slope_deg * 2.5 + state.sampleCarryKg * 1.4)} BPM</span>
-              <span style="color:#4FC3F7;">29.6 kPa · 37.1°C</span>
+          <div class="sub-box" style="padding:6px 9px;background:#090D12;">
+            <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;margin-bottom:2px;">
+              <span style="color:#7CD992;font-weight:700;">🫀 EV-1 ECG · ${Math.round(92 + sampleTerrain(fm.pos[0], fm.pos[1]).slope_deg * 2.5 + state.sampleCarryKg * 1.4)} BPM</span>
+              <span style="color:#4FC3F7;">CO₂ ${fm.co2ScrubberPct}% · H₂O ${fm.coolingWaterL}L</span>
             </div>
-            <svg viewBox="0 0 280 28" style="width:100%;height:28px;display:block;">
+            <svg viewBox="0 0 280 24" style="width:100%;height:24px;display:block;">
               <polyline points="${Array.from({ length: 56 }, (_, k) => {
                 const ph = (k + state.animTick * 2) % 14;
-                const y = ph === 5 ? 11 : ph === 6 ? 21 : ph === 7 ? 3 : ph === 8 ? 24 : ph === 10 ? 9 : 15;
+                const y = ph === 5 ? 9 : ph === 6 ? 18 : ph === 7 ? 2 : ph === 8 ? 21 : ph === 10 ? 7 : 13;
                 return `${(k * 5).toFixed(0)},${y}`;
-              }).join(' ')}" fill="none" stroke="#7CD992" stroke-width="1.6"/>
+              }).join(' ')}" fill="none" stroke="#7CD992" stroke-width="1.5"/>
             </svg>
           </div>
 
-          <!-- CO2 LiOH Scrubber + PLSS Cooling Water + Time + Dose -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-family:'JetBrains Mono',monospace;">
-            <div class="sub-box">
-              <div style="display:flex;justify-content:space-between;"><span class="mono-label">CO₂ LiOH SCRUBBER</span>${makeChipHTML('MODELED')}</div>
-              <div style="font-size:15px;font-weight:700;color:#E8B04B;margin-top:3px;">${fm.co2ProducedG} g (${fm.co2ScrubberPct}%)</div>
-              <div style="font-size:9.5px;color:#8B98A5;">Max Canister: 850 g (RQ 0.88)</div>
-            </div>
-            <div class="sub-box">
-              <div style="display:flex;justify-content:space-between;"><span class="mono-label">LCVG COOLING H₂O</span>${makeChipHTML('MODELED')}</div>
-              <div style="font-size:15px;font-weight:700;color:#4FC3F7;margin-top:3px;">${fm.coolingWaterL} L (${fm.coolingWaterPct}%)</div>
-              <div style="font-size:9.5px;color:#8B98A5;">Feedwater: 4.2 L · REMS Thermal</div>
-            </div>
-            <div class="sub-box">
-              <div style="display:flex;justify-content:space-between;"><span class="mono-label">ELAPSED TIME</span>${makeChipHTML('MODELED')}</div>
-              <div style="font-size:15px;font-weight:700;margin-top:3px;">${fm.elapsedMin} min</div>
-              <div style="font-size:9.5px;color:#8B98A5;">Next: ${fm.nextWp} (${fm.distNextM} m)</div>
-            </div>
-            <div class="sub-box">
-              <div style="display:flex;justify-content:space-between;"><span class="mono-label">ACCUM. DOSE</span>${makeChipHTML('MEASURED')}</div>
-              <div style="font-size:15px;font-weight:700;color:${state.scenario === 'solar_storm' ? '#FF5A5F' : '#7CD992'};margin-top:3px;">${fm.doseMsv} mSv</div>
-              <div style="font-size:9.5px;color:#8B98A5;">Limit: 250 mSv (NASA-3001)</div>
-            </div>
-          </div>
-
-          <div class="sub-box" style="border:1.5px solid ${alertColor};background:rgba(18,24,33,0.9);">
-            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${alertColor};">[${fm.level.toUpperCase()}] ${fm.title}</span>
-              ${makeChipHTML('MODELED')}
-            </div>
-            <div style="font-size:11px;line-height:1.38;">${fm.msg}</div>
-          </div>
-
-          <!-- 6 Scenarios -->
           <div class="sub-box">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-              <span class="mono-label">CONTINGENCY SCENARIOS (LIVE IN 2D & 3D)</span>
-              ${makeChipHTML('ASSUMED')}
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+              <span class="mono-label">EMERGENCY & CONTINGENCY SIMULATOR</span>
+              <button onclick="window.sendaOpenMonteCarloModal()" class="pill-btn" style="padding:1px 6px;font-size:9px;border-color:#FFB020;color:#FFB020;">🎲 Monte Carlo</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
               ${[
                 ['nominal', 'Nominal EVA', 'Standard telemetry'],
-                ['solar_storm', 'Solar storm', 'SPE → Shelter T08 (−38%)'],
+                ['solar_storm', 'Solar storm', 'SPE → Shelter T08'],
                 ['dust_storm', 'Dust storm', 'τ = 3.5 · Speed ×0.7'],
-                ['suit_leak', 'Suit leak (×1.5)', 'O₂ ×1.5 · Return now'],
-                ['injury', 'Injury (×0.5)', 'Buddy Walkback ×1.38'],
-                ['blocked_path', 'Blocked path', 'Slope > 20° · Detour']
+                ['suit_leak', 'Suit leak (×1.5)', 'O₂ ×1.5 · Abort'],
+                ['injury', 'Injury (×0.5)', 'Buddy Walkback'],
+                ['blocked_path', 'Blocked path', 'Detour > 20°']
               ].map(([id, lbl, d]) => `
                 <button onclick="window.sendaSetScenario('${id}')" class="scen-btn ${state.scenario === id ? 'active' : ''}">
-                  <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:#E6EDF3;">${lbl}</div>
-                  <div style="font-size:9px;color:#8B98A5;">${d}</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#E6EDF3;">${lbl}</div>
+                  <div style="font-size:8.5px;color:#8B98A5;">${d}</div>
                 </button>
               `).join('')}
             </div>
           </div>
-
-          ${buildElevationSVG(activeRoute, true)}
-          ${state.mode === 'FIELD' ? `
-            <button onclick="window.sendaSetMode('3D')" class="cta-field-btn" style="margin-top:2px;border-color:#4FC3F7;background:rgba(79,195,247,0.18);">
-              🏔️ VIEW LIVE SIMULATION IN 3D DEM →
-            </button>
-          ` : ''}
         </div>
       `;
-    } else {
-      // PLAN Mode (or 3D DOSSIER Tab) Right Panel
-      const gc = selTarget.geochem || { SiO2: 42, FeOT: 18, SO3: 15, CaO: 8, MgO: 8 };
-      const sampleMult = 1.0 + 0.014 * state.sampleCarryKg;
-      rightEl.innerHTML = `
-        ${tab3DBanner}
-        <div style="padding:11px 13px;border-bottom:1px solid #1F2A37;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span class="mono-label">SCIENCE TARGET DOSSIER (8 ROI)</span>
-            <div style="display:flex;gap:4px;">
-              <button onclick="window.sendaOpenDrillModal('${selTarget.id}')" style="border:1px solid #A371F7;background:rgba(163,113,247,0.16);color:#A371F7;border-radius:4px;padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;">
-                🔬 DRILL & LIBS
-              </button>
-              <button onclick="window.sendaOpenPairedModal()" style="border:1px solid #E8B04B;background:rgba(232,176,75,0.16);color:#E8B04B;border-radius:4px;padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;">
-                ⚖ T05 vs T06
-              </button>
-            </div>
+    } else if (state.rightDivision === 'SCIENCE') {
+      divBodyHTML = `
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="mono-label">CURIOSITY TARGETS (T01–T08)</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#E8B04B;font-weight:700;">SCORE ${selTarget.rubric.total_15}/15</span>
           </div>
-
-          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
-            ${state.targets.map((t) => `
-              <button onclick="window.sendaSelectTarget('${t.id}')" class="pill-btn ${t.id === selTarget.id ? 'active' : ''}">${t.id}</button>
-            `).join('')}
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            ${state.targets.map((t) => `<button onclick="window.sendaSelectTarget('${t.id}')" class="pill-btn ${t.id === selTarget.id ? 'active' : ''}">${t.id}</button>`).join('')}
           </div>
-
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
-            <div>
-              <div style="font-size:13.5px;font-weight:700;">${selTarget.id} · ${selTarget.name}</div>
-              <div style="font-size:10.5px;color:#8B98A5;">${selTarget.type_en} · <span style="color:#4FC3F7;">${selTarget.comms}</span></div>
-            </div>
-            <div style="background:#0B0F14;border:1px solid #E8B04B;border-radius:5px;padding:2px 7px;text-align:center;font-family:'JetBrains Mono',monospace;">
-              <div style="font-size:8.5px;color:#8B98A5;">RUBRIC</div>
-              <div style="font-size:12.5px;font-weight:700;color:#E8B04B;">${selTarget.rubric.total_15}/15</div>
-            </div>
-          </div>
-
-          <!-- POV + 360° Polar Horizon Radar Side-by-Side -->
-          <div style="display:flex;gap:8px;margin-bottom:7px;">
-            <div style="position:relative;flex:1;height:94px;border-radius:6px;overflow:hidden;border:1px solid #1F2A37;background:#0B0F14;">
+          <div style="font-size:13px;font-weight:700;">${selTarget.id} · ${selTarget.name}</div>
+          <div style="display:flex;gap:8px;">
+            <div style="position:relative;flex:1;height:86px;border-radius:6px;overflow:hidden;border:1px solid #1F2A37;background:#0B0F14;">
               <svg viewBox="0 0 240 94" style="width:100%;height:100%;display:block;">
-                <defs>
-                  <linearGradient id="mSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B271E"/><stop offset="100%" stop-color="#9C6549"/></linearGradient>
-                  <linearGradient id="mRock" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5C3A28"/><stop offset="100%" stop-color="#2E1C14"/></linearGradient>
-                </defs>
-                <rect width="240" height="94" fill="url(#mSky)"/>
-                <polygon points="0,62 38,42 82,52 128,32 178,46 215,30 240,42 240,94 0,94" fill="url(#mRock)"/>
+                <rect width="240" height="94" fill="#3B271E"/>
+                <polygon points="0,62 38,42 82,52 128,32 178,46 215,30 240,42 240,94 0,94" fill="#5C3A28"/>
                 <polyline points="22,78 72,50 128,32 172,62 215,30" fill="none" stroke="#E8B04B" stroke-width="1.5" stroke-dasharray="4,2"/>
                 <circle cx="125" cy="48" r="10" fill="none" stroke="#E4572E" stroke-width="1.3"/>
               </svg>
-              <div style="position:absolute;top:4px;left:5px;background:rgba(11,15,20,0.85);padding:1px 5px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;">
-                ${selTarget.camera} · Sol ${selTarget.sol}
-              </div>
-              <div style="position:absolute;bottom:4px;left:5px;background:rgba(11,15,20,0.85);padding:1px 5px;border-radius:3px;font-size:9px;font-family:'JetBrains Mono',monospace;color:#E8B04B;">
-                ${selTarget.elev_geoid_m} m
-              </div>
+              <div style="position:absolute;top:4px;left:5px;background:rgba(11,15,20,0.85);padding:1px 5px;border-radius:3px;font-size:8.5px;font-family:'JetBrains Mono',monospace;">${selTarget.camera} · Sol ${selTarget.sol}</div>
             </div>
-            <div title="360° Horizon Sky-View Mask (Guo et al. 2026)">
-              ${buildPolarHorizonSVG(selTarget)}
+            <div title="360° Horizon Sky-View Mask">${buildPolarHorizonSVG(selTarget)}</div>
+          </div>
+          <p style="margin:0;font-size:10.5px;line-height:1.4;color:#E6EDF3;">${selTarget.desc_en}</p>
+
+          <div class="sub-box" style="font-family:'JetBrains Mono',monospace;font-size:9.5px;">
+            <div style="color:#8B98A5;font-weight:700;margin-bottom:4px;">APXS OXIDES (wt%) · SHIELDING −${selTarget.shielding_pct}%</div>
+            <div style="display:flex;gap:4px;text-align:center;">
+              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;">SiO₂<br><strong>${gc.SiO2}%</strong></div>
+              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;color:#E8B04B;">SO₃<br><strong>${gc.SO3}%</strong></div>
+              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;color:#4FC3F7;">CaO<br><strong>${gc.CaO}%</strong></div>
+              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;">FeOT<br><strong>${gc.FeOT}%</strong></div>
             </div>
           </div>
 
-          <p style="margin:0 0 7px 0;font-size:11px;line-height:1.42;color:#E6EDF3;">${selTarget.desc_en}</p>
-
-          <!-- APXS / ChemCam Oxide Signature + Sampling Tool -->
-          <div class="sub-box" style="margin-bottom:6px;font-family:'JetBrains Mono',monospace;font-size:10px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-              <span style="color:#8B98A5;font-weight:700;">APXS / CHEMCAM GEOCHEMISTRY (wt%)</span>
-              <span style="color:#7CD992;">Shielding: −${selTarget.shielding_pct}% (SVF ${selTarget.svf})</span>
-            </div>
-            <div style="display:flex;gap:5px;justify-content:space-between;text-align:center;">
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;"><div style="font-size:8.5px;color:#8B98A5;">SiO₂</div><strong>${gc.SiO2}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;"><div style="font-size:8.5px;color:#E8B04B;">SO₃</div><strong style="color:#E8B04B;">${gc.SO3}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;"><div style="font-size:8.5px;color:#4FC3F7;">CaO</div><strong style="color:#4FC3F7;">${gc.CaO}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;"><div style="font-size:8.5px;color:#8B98A5;">FeOT</div><strong>${gc.FeOT}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;"><div style="font-size:8.5px;color:#8B98A5;">MgO</div><strong>${gc.MgO}%</strong></div>
-            </div>
-            <div style="margin-top:5px;color:#8B98A5;font-size:9.5px;">
-              <strong style="color:#E6EDF3;">Tool:</strong> ${selTarget.sampling.tool} (${selTarget.sampling.mass_kg} kg core · ${selTarget.sampling.min} min)
-            </div>
-          </div>
-
-          <!-- 3 Rubric Bars -->
-          <div class="sub-box" style="display:flex;flex-direction:column;gap:4px;">
-            ${[
-              ['Novelty', selTarget.rubric.novelty, '#E8B04B'],
-              ['Habitability', selTarget.rubric.habitability, '#7CD992'],
-              ['Human-Only', selTarget.rubric.human_only, '#4FC3F7']
-            ].map(([lbl, val, col]) => `
-              <div style="display:flex;align-items:center;gap:8px;font-size:10.5px;">
-                <span style="width:78px;color:#8B98A5;">${lbl}</span>
-                <div style="flex:1;height:5px;background:#121821;border-radius:3px;overflow:hidden;">
-                  <div style="width:${(val / 5) * 100}%;height:100%;background:${col};"></div>
-                </div>
-                <span style="width:24px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;">${val}/5</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- Route Comparator + Sample Mass Slider + A* vs Dijkstra Verification -->
-        <div style="padding:11px 13px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span class="mono-label">A* ROUTE COMPARATOR</span>
-            <div style="display:flex;gap:5px;">
-              <button onclick="window.sendaOpenAstarModal()" style="border:1px solid #4FC3F7;background:rgba(79,195,247,0.14);color:#4FC3F7;border-radius:4px;padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;">
-                ⚡ A* == DIJKSTRA
-              </button>
-              <button onclick="window.sendaOpenChecklistModal()" style="border:1px solid #7CD992;background:rgba(124,217,146,0.14);color:#7CD992;border-radius:4px;padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;">
-                📋 CUFF CARD
-              </button>
-            </div>
-          </div>
-
-          <!-- Asymmetric Return Sample Mass Slider -->
-          <div class="sub-box" style="margin-bottom:7px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;">
-            <span style="color:#8B98A5;">Return Sample Load:</span>
+          <div class="sub-box" style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;">
+            <span style="color:#8B98A5;">Sample Load:</span>
             <input type="range" min="0" max="12" step="0.5" value="${state.sampleCarryKg}" oninput="window.sendaSetSampleMass(this.value)" style="flex:1;accent-color:#E8B04B;"/>
-            <strong style="color:#E8B04B;width:42px;text-align:right;">+${state.sampleCarryKg} kg</strong>
+            <strong style="color:#E8B04B;">+${state.sampleCarryKg} kg</strong>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:7px;">
-            ${state.routes.map((r) => {
-              const isSel = r.id === state.selectedRouteId;
-              const m = r.metrics;
-              const adjO2 = m.o2_L.map((v) => Math.round(v * sampleMult));
-              const adjMJ = (m.energy_MJ * sampleMult).toFixed(2);
-              return `
-                <div onclick="window.sendaSelectRoute('${r.id}')" class="route-card" style="border-color:${isSel ? r.color : '#1F2A37'};background:${isSel ? '#0B0F14' : 'rgba(11,15,20,0.55)'};">
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                      <i style="width:9px;height:9px;border-radius:50%;background:${r.color};display:inline-block;"></i>
-                      <strong style="font-size:12px;">${r.name} Profile</strong>
-                      ${makeChipHTML(r.kind)}
-                    </div>
-                    <button class="select-route-btn" style="background:${isSel ? r.color : '#121821'};color:${isSel ? '#0B0F14' : '#8B98A5'};border-color:${isSel ? r.color : '#1F2A37'};">
-                      ${isSel ? 'SELECTED' : 'Select route'}
-                    </button>
-                  </div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;">
-                    <div><span style="color:#8B98A5">Dist (1-way):</span> <strong>${m.distance_oneway_m} m</strong></div>
-                    <div><span style="color:#8B98A5">Duration:</span> <strong>${m.duration_min} min</strong></div>
-                    <div><span style="color:#8B98A5">Climb:</span> <strong>+${m.climb_m} m (${m.max_grade_pct ? m.max_grade_pct + '%' : 'no data'})</strong></div>
-                    <div><span style="color:#8B98A5">Dose:</span> <strong style="color:#4FC3F7">${m.dose_gcr_mSv} mSv</strong></div>
-                    <div style="grid-column:1/-1;"><span style="color:#8B98A5">O₂ Budget:</span> <strong style="color:${r.color}">${adjO2[0]} L (${adjO2[1]}–${adjO2[2]})</strong> · ${adjMJ} MJ</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
+          <div class="mono-label" style="margin-top:2px;">FIELD SCIENCE INSTRUMENTS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <button onclick="window.sendaOpenDrillModal('${selTarget.id}')" class="scen-btn"><div style="color:#A371F7;font-size:10.5px;font-weight:700;">🔬 Drill & LIBS</div><div style="font-size:8.5px;color:#8B98A5;">10cm Core + Laser</div></button>
+            <button onclick="window.sendaOpenPairedModal()" class="scen-btn"><div style="color:#E8B04B;font-size:10.5px;font-weight:700;">⚖ T05 vs T06</div><div style="font-size:8.5px;color:#8B98A5;">10.4m Pair Study</div></button>
+            <button onclick="window.sendaOpenGprModal()" class="scen-btn"><div style="color:#7CD992;font-size:10.5px;font-weight:700;">📡 RIMFAX GPR</div><div style="font-size:8.5px;color:#8B98A5;">0–15m Subsurface</div></button>
+            <button onclick="window.sendaOpenSherlocModal()" class="scen-btn"><div style="color:#FF7B72;font-size:10.5px;font-weight:700;">🧬 SHERLOC UV</div><div style="font-size:8.5px;color:#8B98A5;">Raman Biosignatures</div></button>
           </div>
-          ${buildElevationSVG(activeRoute, false)}
-          <div style="display:flex;gap:6px;">
-            <button onclick="window.sendaStartField()" class="cta-field-btn" style="flex:1;">
-              START 2D FIELD SIM →
+          <button onclick="window.sendaOpenMsrRackModal()" class="cta-field-btn" style="margin:0;border-color:#E8B04B;background:rgba(232,176,75,0.14);">🧪 OPEN MSR TITANIUM TUBE TRIAGE (8 TUBES)</button>
+        </div>
+      `;
+    } else {
+      divBodyHTML = `
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:9px;">
+          <div class="sub-box" style="border-color:#7CD992;">
+            <div class="mono-label" style="color:#7CD992;margin-bottom:4px;">OFFICIAL NASA SPACE APPS DATASETS (5/5)</div>
+            <div style="font-size:10.5px;color:#E6EDF3;line-height:1.4;margin-bottom:8px;">
+              Access JPL Mars Trek, USGS SIM 3292 Geologic Map, Curiosity Lower Mount Sharp Flyover, Live NASA DONKI API & Rover Raw Images.
+            </div>
+            <button onclick="window.sendaOpenNasaDataHub()" class="cta-field-btn" style="margin:0;border-color:#7CD992;background:rgba(124,217,146,0.18);">
+              🛰️ OPEN NASA DATA HUB (5/5)
             </button>
-            <button onclick="window.sendaStart3DSim()" class="cta-field-btn" style="flex:1;border-color:#4FC3F7;background:rgba(79,195,247,0.18);">
-              🏔️ START 3D SIM →
-            </button>
+          </div>
+
+          <div class="sub-box">
+            <div class="mono-label" style="margin-bottom:5px;">RF COMMS & ORBITAL RELAYS</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;display:flex;flex-direction:column;gap:4px;">
+              <div>• T01 4.5m S-Band Mast: <strong style="color:#7CD992;">${selTarget.comms}</strong></div>
+              <div>• MRO Electra UHF Pass: <strong style="color:#4FC3F7;">10:15 LTST (18 min)</strong></div>
+              <div>• ExoMars TGO Relay: <strong style="color:#4FC3F7;">12:40 LTST (22 min)</strong></div>
+            </div>
+          </div>
+
+          ${buildElevationSVG(activeRoute, true)}
+
+          <div class="mono-label" style="margin-top:2px;">MISSION EXPORTS & 3D TOUR</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <button onclick="window.sendaLaunchCuriosityFlyover()" class="scen-btn"><div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">🎬 3D Flyover</div><div style="font-size:8.5px;color:#8B98A5;">Mount Sharp Tour</div></button>
+            <button onclick="window.sendaOpenChecklistModal()" class="scen-btn"><div style="color:#7CD992;font-size:10.5px;font-weight:700;">📋 Wrist Cuff</div><div style="font-size:8.5px;color:#8B98A5;">EVA Checklist</div></button>
+            <button onclick="window.sendaOpenExecutiveReport()" class="scen-btn"><div style="color:#E8B04B;font-size:10.5px;font-weight:700;">📄 PDF Dossier</div><div style="font-size:8.5px;color:#8B98A5;">Mission Report</div></button>
+            <button onclick="window.sendaExportGeoJSON()" class="scen-btn"><div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">💾 .GeoJSON</div><div style="font-size:8.5px;color:#8B98A5;">QGIS / JMARS</div></button>
           </div>
         </div>
       `;
     }
+
+    rightEl.innerHTML = `${divBarHTML}${divBodyHTML}`;
   }
 
   drawMainCanvas();
@@ -4065,11 +4104,12 @@ window.sendaToggleInfo = (id) => {
   state.expandedLayerInfo = state.expandedLayerInfo === id ? null : id;
   renderUI();
 };
-window.sendaSelectTarget = (id) => { state.selectedTargetId = id; renderUI(); };
+window.sendaSelectTarget = (id) => { state.selectedTargetId = id; state.rightDivision = 'SCIENCE'; renderUI(); };
 window.sendaSelectRoute = (id) => { state.selectedRouteId = id; renderUI(); };
 window.sendaSetSampleMass = (v) => { state.sampleCarryKg = parseFloat(v); renderUI(); };
 window.sendaStartField = () => {
   state.mode = 'FIELD';
+  state.rightDivision = 'SURVIVAL';
   state.isPlaying = true;
   capcomSpeak('Copy EV-1 and EV-2, departing Rustic Canyon Base on EVA traverse. Walkback oxygen margin nominal.', false);
   renderUI();
@@ -4077,6 +4117,7 @@ window.sendaStartField = () => {
 window.sendaStart3DSim = () => {
   state.mode = '3D';
   state.rightTab3D = 'SIM';
+  state.rightDivision = 'SURVIVAL';
   state.isPlaying = true;
   capcomSpeak('3D DEM telemetry active. EV-1 and EV-2 ascending Mount Sharp boxwork unit.', false);
   renderUI();
@@ -4262,5 +4303,261 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       drawMainCanvas();
     }
+  }, 110);
+});
+
+window.sendaSetRightDivision = (divId) => {
+  state.rightDivision = divId;
+  renderUI();
+};
+
+window.sendaShowGlobePortal = () => {
+  state.showGlobePortal = true;
+  const portal = document.getElementById('mars-globe-portal');
+  if (portal) portal.style.display = 'flex';
+  renderGlobePortalUI();
+};
+
+window.sendaSelectMarsSite = (siteId) => {
+  state.selectedMarsSiteId = siteId;
+  renderGlobePortalUI();
+};
+
+window.sendaFilterMarsSites = (q) => {
+  state.marsSearchQuery = (q || '').trim().toLowerCase();
+  const match = MARS_PLANETARY_SITES.find(
+    (s) => s.name.toLowerCase().includes(state.marsSearchQuery) || s.region.toLowerCase().includes(state.marsSearchQuery)
+  );
+  if (match && state.marsSearchQuery.length >= 2) {
+    state.selectedMarsSiteId = match.id;
+  }
+  renderGlobePortalUI();
+};
+
+window.sendaEnterSector = (siteId = state.selectedMarsSiteId) => {
+  const site = MARS_PLANETARY_SITES.find((s) => s.id === siteId) || MARS_PLANETARY_SITES[0];
+  state.selectedMarsSiteId = site.id;
+  state.selectedTargetId = site.targetId || 'T06';
+  state.showGlobePortal = false;
+  state.rightDivision = 'TRIP';
+  const portal = document.getElementById('mars-globe-portal');
+  if (portal) portal.style.display = 'none';
+  capcomSpeak(`Entering ${site.name} sector. Terrain and EVA feasibility loaded.`, false);
+  renderUI();
+};
+
+function renderGlobePortalUI() {
+  const site = MARS_PLANETARY_SITES.find((s) => s.id === state.selectedMarsSiteId) || MARS_PLANETARY_SITES[0];
+  const listEl = document.getElementById('globe-sector-list');
+  if (listEl) {
+    const filtered = state.marsSearchQuery
+      ? MARS_PLANETARY_SITES.filter(
+          (s) =>
+            s.name.toLowerCase().includes(state.marsSearchQuery) ||
+            s.region.toLowerCase().includes(state.marsSearchQuery) ||
+            s.desc.toLowerCase().includes(state.marsSearchQuery)
+        )
+      : MARS_PLANETARY_SITES;
+    listEl.innerHTML = (filtered.length ? filtered : MARS_PLANETARY_SITES).map((s) => {
+      const isSel = s.id === site.id;
+      return `
+        <button onclick="window.sendaSelectMarsSite('${s.id}')" style="
+          text-align:left;padding:9px 11px;border-radius:7px;cursor:pointer;
+          background:${isSel ? 'rgba(228,87,46,0.18)' : 'rgba(18,24,33,0.78)'};
+          border:1px solid ${isSel ? '#E4572E' : 'rgba(255,255,255,0.08)'};
+          color:#E6EDF3;font-family:'JetBrains Mono',monospace;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:10.5px;">${s.name}</strong>
+            <span style="font-size:8.5px;color:${s.statusCol};">${s.badge}</span>
+          </div>
+          <div style="font-size:9px;color:#8B98A5;margin-top:2px;">${s.coords}</div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  const cardEl = document.getElementById('globe-site-card');
+  if (cardEl) {
+    cardEl.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <strong style="font-size:15px;letter-spacing:0.04em;color:#FFF;">${site.name}</strong>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${site.statusCol};">● LIVE DATA</span>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8B98A5;margin-bottom:12px;">
+        ${site.coords} · ${site.region}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="background:rgba(11,15,20,0.75);border:1px solid #1F2A37;border-radius:6px;padding:8px 10px;">
+          <div class="mono-label">LOCAL TEMP</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#FFF;margin-top:3px;">${site.temp}</div>
+        </div>
+        <div style="background:rgba(11,15,20,0.75);border:1px solid #1F2A37;border-radius:6px;padding:8px 10px;">
+          <div class="mono-label">DUST STORM</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:#E8B04B;margin-top:4px;">${site.dust}</div>
+        </div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8B98A5;display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span>${site.crew}</span>
+        <strong style="color:${site.statusCol};">${site.status}</strong>
+      </div>
+      <div style="font-size:11px;color:#CBD5E1;line-height:1.4;margin-bottom:12px;">${site.desc}</div>
+      <button onclick="window.sendaEnterSector('${site.id}')" style="
+        width:100%;padding:10px;border:none;border-radius:6px;
+        background:#E4572E;color:#0B0F14;font-family:'JetBrains Mono',monospace;
+        font-size:11.5px;font-weight:800;cursor:pointer;letter-spacing:0.04em;">
+        EXPLORE SECTOR & PLAN EVA →
+      </button>
+    `;
+  }
+  drawMarsGlobeCanvas();
+}
+
+function drawMarsGlobeCanvas() {
+  const canvas = document.getElementById('mars-globe-canvas');
+  if (!canvas || !state.showGlobePortal) return;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = Math.max(500, Math.floor(rect.width));
+  canvas.height = Math.max(360, Math.floor(rect.height));
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W * 0.5, cy = H * 0.49;
+  const R = Math.min(W, H) * 0.27;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Subtle starfield
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  for (let i = 0; i < 85; i++) {
+    const sx = ((i * 197 + 43) % 997) / 997 * W;
+    const sy = ((i * 313 + 71) % 991) / 991 * H;
+    const sz = (i % 3 === 0) ? 1.6 : 0.9;
+    ctx.fillRect(sx, sy, sz, sz);
+  }
+
+  // Outer Martian Atmospheric Rim Glow
+  const atmo = ctx.createRadialGradient(cx, cy, R * 0.85, cx, cy, R * 1.48);
+  atmo.addColorStop(0, 'rgba(228, 87, 46, 0.24)');
+  atmo.addColorStop(0.55, 'rgba(228, 87, 46, 0.08)');
+  atmo.addColorStop(1, 'rgba(228, 87, 46, 0)');
+  ctx.fillStyle = atmo;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 1.48, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tilted Orbital Rings (MRO & ExoMars TGO)
+  [0.24, -0.32].forEach((tilt, idx) => {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(tilt);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, R * (1.55 + idx * 0.14), R * 0.36, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = idx === 0 ? 'rgba(255, 255, 255, 0.22)' : 'rgba(79, 195, 247, 0.18)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // 3D Shaded Mars Planet Sphere
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  const sphGrad = ctx.createRadialGradient(cx - R * 0.34, cy - R * 0.32, R * 0.1, cx, cy, R * 1.12);
+  sphGrad.addColorStop(0, '#F3B484');
+  sphGrad.addColorStop(0.35, '#C8693E');
+  sphGrad.addColorStop(0.72, '#73311B');
+  sphGrad.addColorStop(1, '#1A0B07');
+  ctx.fillStyle = sphGrad;
+  ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+
+  // Rotating Albedo Features (Syrtis Major, Valles Marineris, Polar Ice Cap)
+  const rot = (state.animTick * 0.008) % (Math.PI * 2);
+  ctx.fillStyle = 'rgba(58, 22, 13, 0.42)';
+  ctx.beginPath();
+  ctx.ellipse(cx + Math.sin(rot) * R * 0.45, cy + R * 0.08, R * 0.34, R * 0.14, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx - Math.cos(rot) * R * 0.38, cy - R * 0.18, R * 0.26, R * 0.18, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // North Polar CO2/H2O Ice Cap
+  ctx.fillStyle = 'rgba(245, 242, 238, 0.72)';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - R * 0.92, R * 0.36, R * 0.11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Sphere Rim Highlight
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(243, 180, 132, 0.38)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Interactive Base Pins on Mars Globe
+  canvas._globePins = [];
+  MARS_PLANETARY_SITES.forEach((s) => {
+    const px = cx + s.globeX * R;
+    const py = cy + s.globeY * R;
+    const isSel = s.id === state.selectedMarsSiteId;
+    canvas._globePins.push({ id: s.id, x: px, y: py });
+
+    if (isSel) {
+      const pRad = 12 + (state.animTick % 10) * 0.7;
+      ctx.beginPath();
+      ctx.arc(px, py, pRad, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(228, 87, 46, 0.55)';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(px, py, isSel ? 6.5 : 4.8, 0, Math.PI * 2);
+    ctx.fillStyle = isSel ? '#E4572E' : '#E8B04B';
+    ctx.fill();
+    ctx.lineWidth = 1.8;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.stroke();
+
+    // Label pill
+    ctx.font = "700 9.5px 'JetBrains Mono', monospace";
+    const lbl = `${s.name} · ${s.badge}`;
+    const tw = ctx.measureText(lbl).width + 12;
+    const lx = px + 10, ly = py - 9;
+    ctx.fillStyle = isSel ? 'rgba(228, 87, 46, 0.92)' : 'rgba(11, 15, 20, 0.85)';
+    ctx.fillRect(lx, ly, tw, 17);
+    ctx.strokeStyle = isSel ? '#FFF' : 'rgba(255,255,255,0.22)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(lx, ly, tw, 17);
+    ctx.fillStyle = isSel ? '#0B0F14' : '#E6EDF3';
+    ctx.fillText(lbl, lx + 6, ly + 11.5);
+  });
+}
+
+// Initialize Globe Click & Update Loop
+window.addEventListener('DOMContentLoaded', () => {
+  const globeCanvas = document.getElementById('mars-globe-canvas');
+  if (globeCanvas) {
+    globeCanvas.addEventListener('click', (e) => {
+      if (!globeCanvas._globePins) return;
+      const rect = globeCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      for (const pin of globeCanvas._globePins) {
+        if (Math.hypot(mx - pin.x, my - pin.y) < 28) {
+          if (state.selectedMarsSiteId === pin.id) {
+            window.sendaEnterSector(pin.id);
+          } else {
+            window.sendaSelectMarsSite(pin.id);
+          }
+          break;
+        }
+      }
+    });
+  }
+  renderGlobePortalUI();
+  setInterval(() => {
+    if (state.showGlobePortal) drawMarsGlobeCanvas();
   }, 110);
 });
