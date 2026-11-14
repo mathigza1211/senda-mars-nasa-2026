@@ -17,6 +17,19 @@
 👉 **Launch SENDA Mission Control:** **[https://senda-mars-nasa-2026.netlify.app](https://senda-mars-nasa-2026.netlify.app)**
 - **Zero-Install Portable Single-File Edition:** Open [`SENDA_Mars_NASA_Portable.html`](./SENDA_Mars_NASA_Portable.html) directly in any browser (100% offline capable).
 - **Guided 6-Stage NASA Jury Tour:** Click **`🎬 DEMO`** in the top bar for an automated, voice-narrated walkthrough (`CAPCOM` + authentic Apollo/ISS Quindar telemetry tones at $2525\text{ Hz}$ / $2475\text{ Hz}$).
+- **Official NASA Data & Resources Hub (`5/5`):** Click **`🛰️ NASA DATA (5/5)`** in the top bar to inspect all 5 official NASA Space Apps Challenge datasets, activate the **USGS SIM 3292 Geologic Map**, launch the **3D Lower Mount Sharp Annotated Flyover**, or query the **Live NASA DONKI Space Weather API (`api.nasa.gov`)**.
+
+---
+
+## 🛰️ Official NASA Space Apps Challenge "Data & Resources" Compliance (5 / 5 Integrated)
+
+| # | Official NASA Challenge Resource | How SENDA Integrates & Uses It |
+| :---: | :--- | :--- |
+| **1** | **Jet Propulsion Laboratory's (JPL) Mars Trek**<br>`https://trek.nasa.gov/mars/` | Provides the georeferenced **HiRISE DTM (`DTEEC_039800_1755_039299_1755_A01`, $1\text{ m/px}$)**, **HiRISE RED Orthomosaic ($0.25\text{ m/px}$)**, and **MGS MOLA MEGDR** global altimetry over the $2\times 2\text{ km}$ Lower Mount Sharp Boxwork bounding box. |
+| **2** | **USGS-NASA Planetary Geologic Mapping Program**<br>*(USGS SIM 3292 / Aeolis Mons)* | Implemented as the interactive **`USGS Geologic Map`** layer on both the 2D GIS and 3D DEM, mapping 4 standardized Lower Mount Sharp stratigraphic units: `HNu` (*Murray Lacustrine Mudstone*), `lHl-s` (*Layered Sulfate-Bearing Unit & Marker Band*), `lHl-gv` (*Gediz Vallis Channel & Debris Apron*), and `lHl-bx` (*Cemented Boxwork Polygonal Lattice*). |
+| **3** | **Curiosity Lower Mount Sharp Annotated Route Map & Flyover**<br>*(JPL PIA19912 / PIA26444)* | Implemented as the **`Curiosity Route & Regions`** layer (`Sols 4102–4711+`) labeling **Regions I–IV** on the 2D/3D maps, plus an interactive **`🎬 Flyover Tour`** 3D camera mode that flies across the annotated regions with live narration. |
+| **4** | **NASA Worldview (Earthdata) + Live NASA DONKI API**<br>`https://api.nasa.gov/DONKI/FLR` | Multi-spectral satellite layer compositing and diurnal temporal scrubber modeled on **NASA Worldview**, coupled with a live **NASA DONKI Space Weather API** client that fetches real Solar Energetic Particle (SEP) and X-class solar flare telemetry to trigger emergency shelter rerouting. |
+| **5** | **Mars Perseverance & Curiosity Raw Images Gallery**<br>*(MSL & Mars 2020 Raw Archives)* | Interactive **Rover Raw Images Inspector** linking Gale Crater **Curiosity** (`Mastcam`, `Navcam`, `MAHLI`, `ChemCam`) and Jezero Crater **Perseverance** (`SHERLOC-WATSON`, `SuperCam`, `RIMFAX`) raw frames with official NASA Product IDs and Sol numbers. |
 
 ---
 

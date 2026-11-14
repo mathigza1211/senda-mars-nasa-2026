@@ -309,6 +309,14 @@
         </button>
         <button
           class="pill-btn"
+          style="border-color: #7CD992; background: rgba(124, 217, 146, 0.16); color: #7CD992; padding: 5px 9px;"
+          onclick="window.sendaOpenNasaDataHub()"
+          title="Inspect All 5 Official NASA Space Apps Challenge Data & Resources + Live NASA DONKI API"
+        >
+          🛰️ NASA DATA (5/5)
+        </button>
+        <button
+          class="pill-btn"
           style="border-color: #E8B04B; color: #E8B04B; padding: 5px 9px;"
           onclick="window.sendaOpenPairedModal()"
           title="Compare Paired Boxwork Drill Sites T05 (Hollow) vs T06 (Ridge)"
@@ -397,7 +405,17 @@
             </div>
 
             <div style="font-size: 9.5px; color: #8B98A5; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.06em;">
-              3 · FLIGHT DATA FILES & GIS EXPORTS
+              3 · OFFICIAL NASA DATA HUB, FLYOVER & EXPORTS
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px;">
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenNasaDataHub();">
+                <div style="color:#7CD992;font-size:10px;font-weight:700;">🛰️ NASA Data (5/5)</div>
+                <div style="font-size:8px;color:#8B98A5;">Mars Trek · USGS · DONKI</div>
+              </button>
+              <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaLaunchCuriosityFlyover();">
+                <div style="color:#4FC3F7;font-size:10px;font-weight:700;">🎬 3D Flyover Tour</div>
+                <div style="font-size:8px;color:#8B98A5;">Mount Sharp Regions</div>
+              </button>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px;">
               <button class="scen-btn" onclick="window.sendaCloseLabsMenu();window.sendaOpenChecklistModal();">
@@ -489,7 +507,7 @@
             <div class="mono-label" style="color: #E6EDF3;">MULTI-MISSION LAYERS</div>
             <div style="font-size: 11px; color: #8B98A5;">Gale Boxwork Bbox (2 × 2 km)</div>
           </div>
-          <span class="prov-chip chip-measured">9 LAYERS</span>
+          <span class="prov-chip chip-measured">11 LAYERS</span>
         </div>
         <div
           id="layer-list-container"
