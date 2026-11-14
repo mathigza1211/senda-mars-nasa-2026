@@ -2350,10 +2350,10 @@ function renderUI() {
     }
   }
 
-  // Left Layer Panel
+  // Left Layer Panel (Clean 4 Core Layers + Collapsible "More Layers" Section)
   const layerListEl = document.getElementById('layer-list-container');
   if (layerListEl) {
-    layerListEl.innerHTML = state.layers.map((l) => {
+    const renderLayerCard = (l) => {
       const infoOpen = state.expandedLayerInfo === l.id;
       return `
         <div class="layer-card ${l.enabled ? 'on' : ''}">
@@ -2386,7 +2386,22 @@ function renderUI() {
           ` : ''}
         </div>
       `;
-    }).join('');
+    };
+    const coreIds = ['ortho', 'relief', 'slope', 'risk'];
+    const coreLayers = state.layers.filter((l) => coreIds.includes(l.id));
+    const extraLayers = state.layers.filter((l) => !coreIds.includes(l.id));
+    layerListEl.innerHTML = `
+      ${coreLayers.map(renderLayerCard).join('')}
+      <details class="acc-box" style="margin-top:4px;">
+        <summary>
+          <span>▸ MORE SCIENCE LAYERS (${extraLayers.length})</span>
+          <span style="font-size:9px;color:#8B98A5;">USGS · CRISM · COMMS</span>
+        </summary>
+        <div class="acc-body" style="display:flex;flex-direction:column;gap:6px;">
+          ${extraLayers.map(renderLayerCard).join('')}
+        </div>
+      </details>
+    `;
   }
 
   // Right Panel: 4 Clean Functional Divisions for Astronaut Needs During Mission
@@ -2421,8 +2436,8 @@ function renderUI() {
 
     if (state.rightDivision === 'TRIP') {
       divBodyHTML = `
-        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
-          <!-- Trip Feasibility Header (Matches Reference) -->
+        <div style="padding:14px 15px;display:flex;flex-direction:column;gap:12px;">
+          <!-- Trip Feasibility Header (Exact Visual Match) -->
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div>
               <div style="font-size:15px;font-weight:700;letter-spacing:0.04em;">TRIP FEASIBILITY</div>
@@ -2433,15 +2448,15 @@ function renderUI() {
 
           <!-- GO / CAUTION / NO-GO Traffic Light -->
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;">
-            <div style="padding:7px;text-align:center;border-radius:5px;background:${isGo ? '#238636' : '#0B0F14'};border:1px solid ${isGo ? '#7CD992' : '#1F2A37'};color:${isGo ? '#FFF' : '#8B98A5'};">GO</div>
-            <div style="padding:7px;text-align:center;border-radius:5px;background:${isCaution ? '#9E6A03' : '#0B0F14'};border:1px solid ${isCaution ? '#FFB020' : '#1F2A37'};color:${isCaution ? '#FFF' : '#8B98A5'};">CAUTION</div>
-            <div style="padding:7px;text-align:center;border-radius:5px;background:${isNoGo ? '#B62324' : '#0B0F14'};border:1px solid ${isNoGo ? '#FF5A5F' : '#1F2A37'};color:${isNoGo ? '#FFF' : '#8B98A5'};">NO-GO</div>
+            <div style="padding:8px;text-align:center;border-radius:5px;background:${isGo ? '#238636' : '#0B0F14'};border:1px solid ${isGo ? '#7CD992' : '#1F2A37'};color:${isGo ? '#FFF' : '#8B98A5'};">GO</div>
+            <div style="padding:8px;text-align:center;border-radius:5px;background:${isCaution ? '#9E6A03' : '#0B0F14'};border:1px solid ${isCaution ? '#FFB020' : '#1F2A37'};color:${isCaution ? '#FFF' : '#8B98A5'};">CAUTION</div>
+            <div style="padding:8px;text-align:center;border-radius:5px;background:${isNoGo ? '#B62324' : '#0B0F14'};border:1px solid ${isNoGo ? '#FF5A5F' : '#1F2A37'};color:${isNoGo ? '#FFF' : '#8B98A5'};">NO-GO</div>
           </div>
 
           <!-- Real-Time Mars Weather Grid -->
           <div>
-            <div class="mono-label" style="margin-bottom:5px;">REAL-TIME MARS WEATHER (REMS / RAD)</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'JetBrains Mono',monospace;">
+            <div class="mono-label" style="margin-bottom:6px;">REAL-TIME MARS WEATHER</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-family:'JetBrains Mono',monospace;">
               <div class="sub-box">
                 <div class="mono-label">TEMP</div>
                 <div style="font-size:15px;font-weight:700;margin-top:2px;">${sol.tempC}°C</div>
@@ -2459,49 +2474,41 @@ function renderUI() {
                 <div style="font-size:13.5px;font-weight:700;margin-top:2px;">745 Pa</div>
               </div>
             </div>
-            <div class="sub-box" style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;">
+            <div class="sub-box" style="margin-top:7px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;">
               <span class="mono-label">RADIATION LEVEL</span>
               <strong style="font-size:13px;color:${state.scenario === 'solar_storm' ? '#FF5A5F' : '#7CD992'};">${state.scenario === 'solar_storm' ? '2.14 mSv/h (SPE!)' : '0.64 mSv/sol'}</strong>
             </div>
           </div>
 
           <!-- Est. Travel Time & Distance + Primary CTA -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px;border-top:1px solid #1F2A37;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:6px;border-top:1px solid #1F2A37;">
             <div>
               <div class="mono-label">EST. TRAVEL TIME</div>
               <div style="font-size:19px;font-weight:700;">${activeRoute.metrics.duration_min} min</div>
             </div>
             <div>
-              <div class="mono-label">DISTANCE (1-WAY)</div>
+              <div class="mono-label">DISTANCE</div>
               <div style="font-size:19px;font-weight:700;color:#E4572E;">${(activeRoute.metrics.distance_oneway_m / 1000).toFixed(2)} km</div>
             </div>
           </div>
 
-          <div style="display:flex;gap:6px;">
-            <button onclick="window.sendaStartField()" class="cta-field-btn" style="margin:0;flex:1;background:#E4572E;color:#0B0F14;font-weight:800;">
-              ▶ START EVA ROUTE
-            </button>
-            <button onclick="window.sendaStart3DSim()" class="cta-field-btn" style="margin:0;flex:1;border-color:#4FC3F7;background:rgba(79,195,247,0.16);">
-              🏔️ 3D VIEW →
-            </button>
-          </div>
+          <button onclick="window.sendaStartField()" class="cta-field-btn" style="margin:0;background:#E4572E;color:#0B0F14;font-weight:800;padding:11px;">
+            CALCULATE & START EVA ROUTE →
+          </button>
 
-          <!-- A* Route Selector & Pareto Optimizer -->
-          <div style="border-top:1px solid #1F2A37;padding-top:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <span class="mono-label">A* ROUTE PROFILES (3)</span>
-              <div style="display:flex;gap:4px;">
-                <button onclick="window.sendaOpenParetoModal()" class="pill-btn" style="border-color:#E8B04B;color:#E8B04B;font-size:9px;">📈 Pareto</button>
-                <button onclick="window.sendaOpenAstarModal()" class="pill-btn" style="border-color:#4FC3F7;color:#4FC3F7;font-size:9px;">⚡ A*=Dijkstra</button>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
+          <!-- Collapsible Section: A* Routes & Pareto Optimizer -->
+          <details class="acc-box">
+            <summary>
+              <span>▸ ROUTE PROFILES (${state.routes.length}) & PARETO</span>
+              <span style="font-size:9px;color:#4FC3F7;">${activeRoute.name}</span>
+            </summary>
+            <div class="acc-body" style="display:flex;flex-direction:column;gap:7px;">
               ${state.routes.map((r) => {
                 const isSel = r.id === state.selectedRouteId;
                 const m = r.metrics;
                 const adjO2 = m.o2_L.map((v) => Math.round(v * sampleMult));
                 return `
-                  <div onclick="window.sendaSelectRoute('${r.id}')" class="route-card" style="padding:7px 9px;border-color:${isSel ? r.color : '#1F2A37'};background:${isSel ? '#0B0F14' : 'rgba(11,15,20,0.45)'};">
+                  <div onclick="window.sendaSelectRoute('${r.id}')" class="route-card" style="padding:7px 9px;border-color:${isSel ? r.color : '#1F2A37'};background:${isSel ? '#121821' : 'transparent'};">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                       <div style="display:flex;align-items:center;gap:6px;">
                         <i style="width:8px;height:8px;border-radius:50%;background:${r.color};display:inline-block;"></i>
@@ -2512,13 +2519,18 @@ function renderUI() {
                   </div>
                 `;
               }).join('')}
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:2px;">
+                <button onclick="window.sendaOpenParetoModal()" class="pill-btn" style="border-color:#E8B04B;color:#E8B04B;">📈 Pareto Trade-off</button>
+                <button onclick="window.sendaOpenAstarModal()" class="pill-btn" style="border-color:#4FC3F7;color:#4FC3F7;">⚡ A* == Dijkstra</button>
+              </div>
+              <button onclick="window.sendaStart3DSim()" class="pill-btn" style="border-color:#7CD992;color:#7CD992;padding:5px;">🏔️ Open 3D DEM View</button>
             </div>
-          </div>
+          </details>
         </div>
       `;
     } else if (state.rightDivision === 'SURVIVAL') {
       divBodyHTML = `
-        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:9px;">
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
           <div class="sub-box">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
               <span class="mono-label">EVA TRAVERSE & LOCOMOTION</span>
@@ -2545,11 +2557,10 @@ function renderUI() {
           <div class="sub-box" style="border-color:${alertColor};">
             <div style="display:flex;justify-content:space-between;">
               <span class="mono-label">PLSS REMAINING O₂ (300 L)</span>
-              <button onclick="window.sendaOpenBioTwinModal()" class="pill-btn" style="padding:1px 6px;font-size:9px;border-color:#FF7B72;color:#FF7B72;">🫀 BIO-TWIN</button>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${alertColor};">${o2Pct}%</span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;font-family:'JetBrains Mono',monospace;">
-              <span style="font-size:19px;font-weight:700;color:${alertColor};">${Math.round(fm.o2LeftL)} L <small style="font-size:10.5px;color:#8B98A5;">(${o2Min}–${o2Max} L)</small></span>
-              <span style="font-size:12px;font-weight:700;">${o2Pct}%</span>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:${alertColor};margin-top:2px;">
+              ${Math.round(fm.o2LeftL)} L <small style="font-size:10.5px;color:#8B98A5;">(${o2Min}–${o2Max} L)</small>
             </div>
             <div style="height:6px;background:#121821;border-radius:4px;overflow:hidden;margin-top:5px;">
               <div style="width:${o2Pct}%;height:100%;background:${alertColor};"></div>
@@ -2560,56 +2571,68 @@ function renderUI() {
             </div>
           </div>
 
-          <div class="sub-box" style="padding:6px 9px;background:#090D12;">
-            <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;margin-bottom:2px;">
-              <span style="color:#7CD992;font-weight:700;">🫀 EV-1 ECG · ${Math.round(92 + sampleTerrain(fm.pos[0], fm.pos[1]).slope_deg * 2.5 + state.sampleCarryKg * 1.4)} BPM</span>
-              <span style="color:#4FC3F7;">CO₂ ${fm.co2ScrubberPct}% · H₂O ${fm.coolingWaterL}L</span>
+          <details class="acc-box">
+            <summary>
+              <span>▸ BIOMETRICS (ECG · CO₂ · H₂O)</span>
+              <span style="font-size:9px;color:#7CD992;">${Math.round(92 + sampleTerrain(fm.pos[0], fm.pos[1]).slope_deg * 2.5)} BPM</span>
+            </summary>
+            <div class="acc-body" style="display:flex;flex-direction:column;gap:7px;">
+              <svg viewBox="0 0 280 24" style="width:100%;height:24px;display:block;background:#090D12;border-radius:4px;">
+                <polyline points="${Array.from({ length: 56 }, (_, k) => {
+                  const ph = (k + state.animTick * 2) % 14;
+                  const y = ph === 5 ? 9 : ph === 6 ? 18 : ph === 7 ? 2 : ph === 8 ? 21 : ph === 10 ? 7 : 13;
+                  return `${(k * 5).toFixed(0)},${y}`;
+                }).join(' ')}" fill="none" stroke="#7CD992" stroke-width="1.5"/>
+              </svg>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;">
+                <div>CO₂ LiOH: <strong style="color:#E8B04B;">${fm.co2ScrubberPct}%</strong></div>
+                <div>Cooling H₂O: <strong style="color:#4FC3F7;">${fm.coolingWaterL} L</strong></div>
+                <div>Elapsed: <strong>${fm.elapsedMin} min</strong></div>
+                <div>Dose: <strong style="color:#7CD992;">${fm.doseMsv} mSv</strong></div>
+              </div>
+              <button onclick="window.sendaOpenBioTwinModal()" class="pill-btn" style="border-color:#FF7B72;color:#FF7B72;padding:5px;">🫀 Open Full xEMU Bio-Twin</button>
             </div>
-            <svg viewBox="0 0 280 24" style="width:100%;height:24px;display:block;">
-              <polyline points="${Array.from({ length: 56 }, (_, k) => {
-                const ph = (k + state.animTick * 2) % 14;
-                const y = ph === 5 ? 9 : ph === 6 ? 18 : ph === 7 ? 2 : ph === 8 ? 21 : ph === 10 ? 7 : 13;
-                return `${(k * 5).toFixed(0)},${y}`;
-              }).join(' ')}" fill="none" stroke="#7CD992" stroke-width="1.5"/>
-            </svg>
-          </div>
+          </details>
 
-          <div class="sub-box">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-              <span class="mono-label">EMERGENCY & CONTINGENCY SIMULATOR</span>
-              <button onclick="window.sendaOpenMonteCarloModal()" class="pill-btn" style="padding:1px 6px;font-size:9px;border-color:#FFB020;color:#FFB020;">🎲 Monte Carlo</button>
+          <details class="acc-box">
+            <summary>
+              <span>▸ EMERGENCY SCENARIOS (6)</span>
+              <span style="font-size:9px;color:#FF5A5F;">${state.scenario.toUpperCase()}</span>
+            </summary>
+            <div class="acc-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;">
+                ${[
+                  ['nominal', 'Nominal EVA', 'Standard telemetry'],
+                  ['solar_storm', 'Solar storm', 'SPE → Shelter T08'],
+                  ['dust_storm', 'Dust storm', 'τ = 3.5 · Speed ×0.7'],
+                  ['suit_leak', 'Suit leak (×1.5)', 'O₂ ×1.5 · Abort'],
+                  ['injury', 'Injury (×0.5)', 'Buddy Walkback'],
+                  ['blocked_path', 'Blocked path', 'Detour > 20°']
+                ].map(([id, lbl, d]) => `
+                  <button onclick="window.sendaSetScenario('${id}')" class="scen-btn ${state.scenario === id ? 'active' : ''}">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#E6EDF3;">${lbl}</div>
+                    <div style="font-size:8.5px;color:#8B98A5;">${d}</div>
+                  </button>
+                `).join('')}
+              </div>
+              <button onclick="window.sendaOpenMonteCarloModal()" class="pill-btn" style="width:100%;border-color:#FFB020;color:#FFB020;padding:5px;">🎲 Run 1,000× Monte Carlo Survival</button>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-              ${[
-                ['nominal', 'Nominal EVA', 'Standard telemetry'],
-                ['solar_storm', 'Solar storm', 'SPE → Shelter T08'],
-                ['dust_storm', 'Dust storm', 'τ = 3.5 · Speed ×0.7'],
-                ['suit_leak', 'Suit leak (×1.5)', 'O₂ ×1.5 · Abort'],
-                ['injury', 'Injury (×0.5)', 'Buddy Walkback'],
-                ['blocked_path', 'Blocked path', 'Detour > 20°']
-              ].map(([id, lbl, d]) => `
-                <button onclick="window.sendaSetScenario('${id}')" class="scen-btn ${state.scenario === id ? 'active' : ''}">
-                  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#E6EDF3;">${lbl}</div>
-                  <div style="font-size:8.5px;color:#8B98A5;">${d}</div>
-                </button>
-              `).join('')}
-            </div>
-          </div>
+          </details>
         </div>
       `;
     } else if (state.rightDivision === 'SCIENCE') {
       divBodyHTML = `
-        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:9px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="mono-label">CURIOSITY TARGETS (T01–T08)</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#E8B04B;font-weight:700;">SCORE ${selTarget.rubric.total_15}/15</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#E8B04B;font-weight:700;">${selTarget.rubric.total_15}/15</span>
           </div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             ${state.targets.map((t) => `<button onclick="window.sendaSelectTarget('${t.id}')" class="pill-btn ${t.id === selTarget.id ? 'active' : ''}">${t.id}</button>`).join('')}
           </div>
           <div style="font-size:13px;font-weight:700;">${selTarget.id} · ${selTarget.name}</div>
           <div style="display:flex;gap:8px;">
-            <div style="position:relative;flex:1;height:86px;border-radius:6px;overflow:hidden;border:1px solid #1F2A37;background:#0B0F14;">
+            <div style="position:relative;flex:1;height:84px;border-radius:6px;overflow:hidden;border:1px solid #1F2A37;background:#0B0F14;">
               <svg viewBox="0 0 240 94" style="width:100%;height:100%;display:block;">
                 <rect width="240" height="94" fill="#3B271E"/>
                 <polygon points="0,62 38,42 82,52 128,32 178,46 215,30 240,42 240,94 0,94" fill="#5C3A28"/>
@@ -2620,41 +2643,52 @@ function renderUI() {
             </div>
             <div title="360° Horizon Sky-View Mask">${buildPolarHorizonSVG(selTarget)}</div>
           </div>
-          <p style="margin:0;font-size:10.5px;line-height:1.4;color:#E6EDF3;">${selTarget.desc_en}</p>
+          <p style="margin:0;font-size:10.5px;line-height:1.4;color:#CBD5E1;">${selTarget.desc_en}</p>
 
-          <div class="sub-box" style="font-family:'JetBrains Mono',monospace;font-size:9.5px;">
-            <div style="color:#8B98A5;font-weight:700;margin-bottom:4px;">APXS OXIDES (wt%) · SHIELDING −${selTarget.shielding_pct}%</div>
-            <div style="display:flex;gap:4px;text-align:center;">
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;">SiO₂<br><strong>${gc.SiO2}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;color:#E8B04B;">SO₃<br><strong>${gc.SO3}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;color:#4FC3F7;">CaO<br><strong>${gc.CaO}%</strong></div>
-              <div style="flex:1;background:#121821;padding:3px;border-radius:3px;">FeOT<br><strong>${gc.FeOT}%</strong></div>
+          <details class="acc-box">
+            <summary>
+              <span>▸ GEOCHEMISTRY (APXS) & SAMPLE LOAD</span>
+              <span style="font-size:9px;color:#E8B04B;">+${state.sampleCarryKg} kg</span>
+            </summary>
+            <div class="acc-body" style="display:flex;flex-direction:column;gap:7px;">
+              <div style="display:flex;gap:4px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;">
+                <div style="flex:1;background:#121821;padding:4px;border-radius:3px;">SiO₂<br><strong>${gc.SiO2}%</strong></div>
+                <div style="flex:1;background:#121821;padding:4px;border-radius:3px;color:#E8B04B;">SO₃<br><strong>${gc.SO3}%</strong></div>
+                <div style="flex:1;background:#121821;padding:4px;border-radius:3px;color:#4FC3F7;">CaO<br><strong>${gc.CaO}%</strong></div>
+                <div style="flex:1;background:#121821;padding:4px;border-radius:3px;">FeOT<br><strong>${gc.FeOT}%</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;">
+                <span style="color:#8B98A5;">Carry Mass:</span>
+                <input type="range" min="0" max="12" step="0.5" value="${state.sampleCarryKg}" oninput="window.sendaSetSampleMass(this.value)" style="flex:1;accent-color:#E8B04B;"/>
+                <strong style="color:#E8B04B;">+${state.sampleCarryKg} kg</strong>
+              </div>
             </div>
-          </div>
+          </details>
 
-          <div class="sub-box" style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;">
-            <span style="color:#8B98A5;">Sample Load:</span>
-            <input type="range" min="0" max="12" step="0.5" value="${state.sampleCarryKg}" oninput="window.sendaSetSampleMass(this.value)" style="flex:1;accent-color:#E8B04B;"/>
-            <strong style="color:#E8B04B;">+${state.sampleCarryKg} kg</strong>
-          </div>
-
-          <div class="mono-label" style="margin-top:2px;">FIELD SCIENCE INSTRUMENTS</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <button onclick="window.sendaOpenDrillModal('${selTarget.id}')" class="scen-btn"><div style="color:#A371F7;font-size:10.5px;font-weight:700;">🔬 Drill & LIBS</div><div style="font-size:8.5px;color:#8B98A5;">10cm Core + Laser</div></button>
-            <button onclick="window.sendaOpenPairedModal()" class="scen-btn"><div style="color:#E8B04B;font-size:10.5px;font-weight:700;">⚖ T05 vs T06</div><div style="font-size:8.5px;color:#8B98A5;">10.4m Pair Study</div></button>
-            <button onclick="window.sendaOpenGprModal()" class="scen-btn"><div style="color:#7CD992;font-size:10.5px;font-weight:700;">📡 RIMFAX GPR</div><div style="font-size:8.5px;color:#8B98A5;">0–15m Subsurface</div></button>
-            <button onclick="window.sendaOpenSherlocModal()" class="scen-btn"><div style="color:#FF7B72;font-size:10.5px;font-weight:700;">🧬 SHERLOC UV</div><div style="font-size:8.5px;color:#8B98A5;">Raman Biosignatures</div></button>
-          </div>
-          <button onclick="window.sendaOpenMsrRackModal()" class="cta-field-btn" style="margin:0;border-color:#E8B04B;background:rgba(232,176,75,0.14);">🧪 OPEN MSR TITANIUM TUBE TRIAGE (8 TUBES)</button>
+          <details class="acc-box" open>
+            <summary>
+              <span>▸ FIELD SCIENCE LABS (5)</span>
+              <span style="font-size:9px;color:#A371F7;">LIBS · GPR · RAMAN</span>
+            </summary>
+            <div class="acc-body" style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                <button onclick="window.sendaOpenDrillModal('${selTarget.id}')" class="scen-btn"><div style="color:#A371F7;font-size:10px;font-weight:700;">🔬 Drill & LIBS</div><div style="font-size:8px;color:#8B98A5;">10cm Core + Laser</div></button>
+                <button onclick="window.sendaOpenPairedModal()" class="scen-btn"><div style="color:#E8B04B;font-size:10px;font-weight:700;">⚖ T05 vs T06</div><div style="font-size:8px;color:#8B98A5;">10.4m Pair Study</div></button>
+                <button onclick="window.sendaOpenGprModal()" class="scen-btn"><div style="color:#7CD992;font-size:10px;font-weight:700;">📡 RIMFAX GPR</div><div style="font-size:8px;color:#8B98A5;">0–15m Subsurface</div></button>
+                <button onclick="window.sendaOpenSherlocModal()" class="scen-btn"><div style="color:#FF7B72;font-size:10px;font-weight:700;">🧬 SHERLOC UV</div><div style="font-size:8px;color:#8B98A5;">Raman Organics</div></button>
+              </div>
+              <button onclick="window.sendaOpenMsrRackModal()" class="pill-btn" style="border-color:#E8B04B;color:#E8B04B;padding:5px;">🧪 MSR Titanium Tube Triage (8 Tubes)</button>
+            </div>
+          </details>
         </div>
       `;
     } else {
       divBodyHTML = `
-        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:9px;">
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
           <div class="sub-box" style="border-color:#7CD992;">
-            <div class="mono-label" style="color:#7CD992;margin-bottom:4px;">OFFICIAL NASA SPACE APPS DATASETS (5/5)</div>
-            <div style="font-size:10.5px;color:#E6EDF3;line-height:1.4;margin-bottom:8px;">
-              Access JPL Mars Trek, USGS SIM 3292 Geologic Map, Curiosity Lower Mount Sharp Flyover, Live NASA DONKI API & Rover Raw Images.
+            <div class="mono-label" style="color:#7CD992;margin-bottom:4px;">NASA SPACE APPS DATASETS (5/5)</div>
+            <div style="font-size:10.5px;color:#CBD5E1;line-height:1.4;margin-bottom:8px;">
+              JPL Mars Trek, USGS SIM 3292 Geologic Map, Curiosity Flyover, Live NASA DONKI API & Rover Raw Images.
             </div>
             <button onclick="window.sendaOpenNasaDataHub()" class="cta-field-btn" style="margin:0;border-color:#7CD992;background:rgba(124,217,146,0.18);">
               🛰️ OPEN NASA DATA HUB (5/5)
@@ -2663,22 +2697,35 @@ function renderUI() {
 
           <div class="sub-box">
             <div class="mono-label" style="margin-bottom:5px;">RF COMMS & ORBITAL RELAYS</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;display:flex;flex-direction:column;gap:4px;">
-              <div>• T01 4.5m S-Band Mast: <strong style="color:#7CD992;">${selTarget.comms}</strong></div>
-              <div>• MRO Electra UHF Pass: <strong style="color:#4FC3F7;">10:15 LTST (18 min)</strong></div>
-              <div>• ExoMars TGO Relay: <strong style="color:#4FC3F7;">12:40 LTST (22 min)</strong></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;flex-direction:column;gap:3px;">
+              <div>• S-Band Mast (T01): <strong style="color:#7CD992;">${selTarget.comms}</strong></div>
+              <div>• MRO / TGO UHF: <strong style="color:#4FC3F7;">10:15 & 12:40 LTST</strong></div>
             </div>
           </div>
 
-          ${buildElevationSVG(activeRoute, true)}
+          <details class="acc-box">
+            <summary>
+              <span>▸ ELEVATION PROFILE & 3D FLYOVER</span>
+              <span style="font-size:9px;color:#4FC3F7;">+${activeRoute.metrics.climb_m} m</span>
+            </summary>
+            <div class="acc-body" style="display:flex;flex-direction:column;gap:7px;">
+              ${buildElevationSVG(activeRoute, true)}
+              <button onclick="window.sendaLaunchCuriosityFlyover()" class="pill-btn" style="border-color:#4FC3F7;color:#4FC3F7;padding:5px;">🎬 Launch 3D Mount Sharp Flyover</button>
+            </div>
+          </details>
 
-          <div class="mono-label" style="margin-top:2px;">MISSION EXPORTS & 3D TOUR</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <button onclick="window.sendaLaunchCuriosityFlyover()" class="scen-btn"><div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">🎬 3D Flyover</div><div style="font-size:8.5px;color:#8B98A5;">Mount Sharp Tour</div></button>
-            <button onclick="window.sendaOpenChecklistModal()" class="scen-btn"><div style="color:#7CD992;font-size:10.5px;font-weight:700;">📋 Wrist Cuff</div><div style="font-size:8.5px;color:#8B98A5;">EVA Checklist</div></button>
-            <button onclick="window.sendaOpenExecutiveReport()" class="scen-btn"><div style="color:#E8B04B;font-size:10.5px;font-weight:700;">📄 PDF Dossier</div><div style="font-size:8.5px;color:#8B98A5;">Mission Report</div></button>
-            <button onclick="window.sendaExportGeoJSON()" class="scen-btn"><div style="color:#4FC3F7;font-size:10.5px;font-weight:700;">💾 .GeoJSON</div><div style="font-size:8.5px;color:#8B98A5;">QGIS / JMARS</div></button>
-          </div>
+          <details class="acc-box">
+            <summary>
+              <span>▸ REPORTS, EXPORTS & GUIDED DEMO</span>
+              <span style="font-size:9px;color:#E8B04B;">PDF · GeoJSON</span>
+            </summary>
+            <div class="acc-body" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              <button onclick="window.sendaOpenChecklistModal()" class="scen-btn"><div style="color:#7CD992;font-size:10px;font-weight:700;">📋 Wrist Cuff</div><div style="font-size:8px;color:#8B98A5;">EVA Checklist</div></button>
+              <button onclick="window.sendaOpenExecutiveReport()" class="scen-btn"><div style="color:#E8B04B;font-size:10px;font-weight:700;">📄 PDF Dossier</div><div style="font-size:8px;color:#8B98A5;">Mission Report</div></button>
+              <button onclick="window.sendaExportGeoJSON()" class="scen-btn"><div style="color:#4FC3F7;font-size:10px;font-weight:700;">💾 .GeoJSON</div><div style="font-size:8px;color:#8B98A5;">QGIS / JMARS</div></button>
+              <button onclick="window.sendaToggleJuryTour()" class="scen-btn"><div style="color:#E4572E;font-size:10px;font-weight:700;">🎬 Jury Demo</div><div style="font-size:8px;color:#8B98A5;">6-Step Tour</div></button>
+            </div>
+          </details>
         </div>
       `;
     }

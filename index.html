@@ -185,6 +185,33 @@
         border-color: #FF5A5F;
         background: rgba(255, 90, 95, 0.18);
       }
+      details.acc-box {
+        background: #0B0F14;
+        border: 1px solid #1F2A37;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      details.acc-box > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 8px 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #CBD5E1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+      }
+      details.acc-box > summary::-webkit-details-marker { display: none; }
+      details.acc-box[open] > summary {
+        border-bottom: 1px solid #1F2A37;
+        color: #E4572E;
+      }
+      details.acc-box > .acc-body {
+        padding: 9px 10px;
+      }
     </style>
   </head>
   <body>
@@ -281,38 +308,21 @@
         </div>
       </div>
 
-      <!-- Globe Center Viewport + Floating Site Card -->
+      <!-- Globe Center Viewport + Floating Site Card (Exact Visual Match) -->
       <div style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
         <canvas id="mars-globe-canvas" style="width: 100%; height: 100%; display: block; cursor: pointer;"></canvas>
-
-        <!-- Left Quick Sector Pills -->
-        <div
-          style="
-            position: absolute;
-            left: 28px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 235px;
-          "
-        >
-          <div class="mono-label" style="color: #E4572E; margin-bottom: 2px;">ACTIVE LANDING SECTORS</div>
-          <div id="globe-sector-list" style="display: flex; flex-direction: column; gap: 7px;"></div>
-        </div>
 
         <!-- Right Selected Base Telemetry Card (Matches Reference) -->
         <div
           id="globe-site-card"
           style="
             position: absolute;
-            right: 32px;
+            right: 48px;
             top: 50%;
             transform: translateY(-50%);
-            width: 295px;
-            background: rgba(18, 24, 33, 0.88);
-            border: 1px solid rgba(228, 87, 46, 0.4);
+            width: 285px;
+            background: rgba(18, 24, 33, 0.86);
+            border: 1px solid rgba(228, 87, 46, 0.35);
             border-radius: 10px;
             padding: 16px;
             backdrop-filter: blur(10px);
@@ -463,21 +473,12 @@
         <span id="sol-phase-badge" class="prov-chip chip-modeled">MORNING EVA</span>
       </div>
 
-      <!-- Clean Astronaut Mission Control Controls -->
+      <!-- Ultra-Clean Astronaut TopBar Controls (Matches Reference) -->
       <div style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; position: relative;">
-        <button
-          id="btn-jury-tour"
-          class="pill-btn"
-          style="border-color: #E4572E; background: rgba(228, 87, 46, 0.22); color: #E6EDF3; padding: 5px 9px;"
-          onclick="window.sendaToggleJuryTour()"
-          title="Launch 6-Step Guided Mission Demo"
-        >
-          🎬 DEMO
-        </button>
         <button
           id="btn-capcom-audio"
           class="pill-btn active"
-          style="border-color: #7CD992; color: #7CD992; padding: 5px 8px;"
+          style="border-color: #1F2A37; color: #7CD992; padding: 5px 8px;"
           onclick="window.sendaToggleAudio()"
           title="Toggle CAPCOM Voice & Quindar Tones"
         >
@@ -486,20 +487,11 @@
         <button
           id="btn-split-view"
           class="pill-btn"
-          style="border-color: #4FC3F7; color: #4FC3F7; padding: 5px 8px;"
+          style="border-color: #1F2A37; color: #4FC3F7; padding: 5px 8px;"
           onclick="window.sendaToggleSplitView()"
-          title="Toggle Synchronized 2D GIS + 3D DEM Dual-Screen Split View (Key: S)"
+          title="Synchronized 2D GIS + 3D DEM Split View (Key: S)"
         >
           🌓 SPLIT
-        </button>
-        <button
-          id="btn-theatre-mode"
-          class="pill-btn"
-          style="border-color: #8B98A5; color: #E6EDF3; padding: 5px 8px;"
-          onclick="window.sendaToggleTheatre()"
-          title="Toggle Fullscreen Visor Mode (Key: F)"
-        >
-          ⛶
         </button>
         <div
           style="
